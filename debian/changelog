@@ -1,3 +1,23 @@
+snapraid-daily-hooks (0.1.2-1) stable; urgency=medium
+
+  * Refinements to snapraid-daily-ntfy-hook:
+
+    - Shorted notification body to Email Subject only
+
+    - Added option in snapraid-daily config file to attach the main
+      run log (email body).
+
+    - Added notification icons depending on whether the main script
+      ends in success or not.
+
+    - In the event of exceeded thresholds added the amount of files
+      and the number delete, moved and updated to the notification
+      body.
+
+  * Updates to manual page.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Mon, 07 Jul 2025 17:19:44 +0100
+
 snapraid-daily-hooks (0.1.1-1) stable; urgency=medium
 
   * Added detailed manual entry - snapraid-daily-hooks(1)
