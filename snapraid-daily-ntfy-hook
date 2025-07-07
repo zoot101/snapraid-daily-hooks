@@ -14,7 +14,7 @@ script_version="0.1.2"
 # $3 - Attachment (if error was encountered)
 
 # Script Variables
-wait_between_notification=5
+wait_between_notifications=5
 
 ###################################################
 # Functions
