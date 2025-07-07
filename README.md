@@ -38,13 +38,17 @@ script **snapraid-daily** is a package dependency, so install that package first
 from here:   
 https://github.com/zoot101/snapraid-daily
 
-Then, the package for the hooks can be installed like so:
+Then, the install of the package can be done like so:
 
 ```bash
+# Install main snapraid-daily
+sudo apt install ./snapraid-daily_1.4.1-1_amd64.deb
+
+# Then install the hooks package
 sudo apt install ./snapraid-daily-hooks_0.1.1-1_amd64.deb
 ```
 
-It's better to use **apt** rather than **dpkg** so the dependencies will be
+Note that it's much better to use **apt** rather than **dpkg** so the dependencies will be
 automatically installed.
 
 Alternatively to install manually, do the following:
@@ -64,13 +68,9 @@ sudo cp ./manual/snapraid-daily-hooks.1.gz /usr/share/man/man1/
 
 Next ensure all dependencies are installed:
 
-* grep, awk, sed, mktemp, tee (Available on pretty much every linux based system)
-* mutt
-* SnapRAID (This is left up to the user and not considered here)
-
 If on Debian, one can do:
 ```bash
-sudo apt install coreutils snapraid-daily bash findutils jq curl gawk
+sudo apt install coreutils snapraid bash findutils jq curl gawk
 ```
 
 # snapraid-daily-service-hook
