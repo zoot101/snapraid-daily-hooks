@@ -6,7 +6,7 @@
 # COPYRIGHT (C) Mark Finnan 2025
 ###################################################
 
-script_version="0.1"
+script_version="0.1.2"
 
 # Script Arguments
 # $1 - Email Subject
