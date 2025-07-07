@@ -1,0 +1,14 @@
+snapraid-daily-hooks (0.1.1-1) stable; urgency=medium
+
+  * Added detailed manual entry - snapraid-daily-hooks(1)
+
+  * Added a debian/postinst script to print a banner after a fresh
+    installation.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Mon, 07 Jul 2025 11:01:51 +0100
+
+snapraid-daily-hooks (0.1-1) stable; urgency=medium
+
+  * Initial release.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Sun, 06 Jul 2025 06:17:56 +0100

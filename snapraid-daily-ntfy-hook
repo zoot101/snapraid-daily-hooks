@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+###################################################
+# SnapRAID-Daily NTFY Notification Hook
+###################################################
+# COPYRIGHT (C) Mark Finnan 2025
+###################################################
+
+script_version="0.0.1"
+
+# Script Arguments
+# $1 - Email Subject
+# $2 - File Containing the Body
+# $3 - Attachment (if error was encountered)
+
+###################################################
+# Functions
+###################################################
+
+# Main Function
+main() {
+  # Check Requirements
+  check_for_requirements "${1}" "${2}" "${3}"
+
+  # Send Notification
+  send_ntfy_notification "${1}" "${2}" "${3}"
+}
+
+# Requirements Check
+check_for_requirements() {
+
+  # Check Curl is installed
+  if [ -z $(which curl) ]; then
+    echo "ERROR: curl is not installed/found in PATH - Exiting"
+    exit 1
+
+  # Check for ntfy url
+  elif [ -z "${ntfy_url}" ]; then
+    echo "ERROR: No ntfy_url defined - Require export ntfy_url=\"https://ntfy.sh/channel_name\" in snapraid-daily.conf - Exiting"
+    exit 1
+
+  # Check for Notification Title
+  elif [ -z "${1}" ]; then
+    echo "ERROR: No Email Subject (Notification Title) Specified - Exiting"
+    exit 1
+
+  # Check for Notification Body
+  elif [ -z "${2}" ]; then
+    echo "ERROR: No Email Body (Notfication Body) Specified - Exiting"
+    exit 1
+  fi
+}
+
+# Send the notification(s)
+send_ntfy_notification() {
+
+  # Local Variables
+  local email_title="${1}"
+  local email_body="${2}"
+  local email_attachment="${3}"
+
+  # Step 1 - Generate Notification Title and Body
+  # Specify the Notification Title
+  system_hostname=$(hostname --fqdn) &> "/dev/null"
+  notification_title="${system_hostname} : ${email_title}"
+
+  # Condense the Email Log to a format more friendly for ntfy
+  # Delete any banner "####" lines, isolate only the printouts that have a time
+  # beside them, remove everything to do with the status output in the email
+  notification_body=$(sed '/###/d;/^#\|^[0-2][0-9]/!d;/Array Status/d;/Current Status/d;/Version:/d;/^#/i\\' "${email_body}")
+
+  # Step 2 - Send Main Notification
+  echo "Sending Notification to ${ntfy_url}"
+
+  # Send Notification using Curl using sed to parse the email log. Check there is a message
+  # parameter in the json output as a measure of success
+  ntfy_response1=$(curl --silent --retry 3 -H "Title: ${notification_title}" -H "Tags: "${notification_tag}"" \
+                        -d "${notification_body}" "${ntfy_url}" | jq .message)
+  if [ ! -z "${ntfy_response1}"  ]; then echo "Reply from ${ntfy_url} : OK"; else echo "Problem sending notification"; fi
+
+  # Step 3 - Send Additional Notification if an Attachement is present. Same success check as above
+  if [ ! -z "${email_attachment}" ]
+  then
+    echo "Sending Command Error Log to ${ntfy_url}"
+    ntfy_response2=$(curl --silent --retry 3 --silent -T "${email_attachment}" -H "Filename: "${email_attachment}"" \
+                     "${ntfy_url}" | jq .message)
+    if [ ! -z "${ntfy_response2}" ]; then echo "Reply from ${ntfy_url} : OK"; else echo "Problem sending notification"; fi
+  fi
+}
+
+###################################################
+# Call Main Function
+###################################################
+main "$@"
+

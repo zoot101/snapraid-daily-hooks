@@ -1,0 +1,28 @@
+Source: snapraid-daily-hooks
+Section: misc
+Priority: optional
+Maintainer: Mark Finnan <mfinnan101@gmail.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-exec,
+Standards-Version: 4.6.2
+Homepage: https://github.com/zoot101/snapraid-daily-hooks
+
+Package: snapraid-daily-hooks
+Architecture: any
+Depends:
+ coreutils (>=8.3),
+ snapraid-daily (>=1.4.0),
+ bash (>=5.0),
+ findutils (>=4.8),
+ jq (>=1.5.0),
+ curl (>=8.0),
+ gawk,
+ ${misc:Depends},
+Recommends:
+ sudo (>=1.7),
+Description: Collection of Hook Scripts for use with SnapRAID-DAILY
+ * Hook for Sending Notifications via NTFY (https://ntfy.sh)
+ * Hook for Stopping/Starting Services via systemd
+
