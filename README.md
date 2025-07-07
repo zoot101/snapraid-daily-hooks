@@ -171,28 +171,38 @@ This is a hook script that allows usage of the **ntfy** notification service her
 https://github.com/binwiederhier/ntfy
 
 It is highly worth having a read of the documentation as the developer has put a
-lot of work into it. **ntfy** is also very simple to use and very quick to set up.
+lot of work into it.
 
-https://docs.ntfy.sh
+**ntfy** is very simple to use and very quick to set up, it is a really good tool that
+is very easy to get notifications on your phone, it is also very easy to self host. It
+comes highly recommended from the author!
 
-Once you have it setup, to use this hook script with **snapraid-daily**, put
-the following into **snapraid-daily.conf**
+Once you have it setup from following the above documentation, to use this hook script
+with **snapraid-daily**, put the following into **snapraid-daily.conf**
 
 ```bash
 notification_hook="/usr/bin/snapraid-daily-ntfy-hook"
 export ntfy_url="https://ntfy.sh/channel_name"
+export ntfy_attach_run_log="no"
 ```
 
 If you are self hosting your own instance of **ntfy**, change the **ntfy_url** parameter
 accordingly.
 
+Because push notifications are geared more towards short messages, the full email
+log is not used as the body of the notification message. Instead the much shorter
+email subject ex. "SnapRAID-DAILY: All OK" is used as the text body.
+
 If one wants to attach the full run-log (email body of **snapraid-daily**) as a
 seperate notification set the **ntfy_attach_run_log** parameter to **yes** in
-**snapraid-daily.conf** like so:
+**snapraid-daily.conf** like above. Comment out or omit if the email subject
+is enough.
 
-```bash
-export ntfy_attach_run_log="yes"
-```
+If errors are encountered during the script, just as with the email notifications
+the logfile from the SnapRAID command that generated the error is attached. This is
+done by sending a seperate notification again and attaching the command error log.
+This means that up to 3 notifications are sent depending on the circumstances and
+input options being used.
 
 Its also a good idea to test out the notification hook on its own before using it
 with **snapraid-daily**. To do that create what would be an email body by putting
@@ -212,7 +222,7 @@ email body, and the 3rd (if present) is the logfile of the command that generate
 the error.
 
 ```bash
-# Source the main config
+# Source the main config (to load above variables)
 source /etc/snapraid-daily.conf
 
 # Test a Success Run
