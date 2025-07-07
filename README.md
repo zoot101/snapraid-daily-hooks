@@ -186,6 +186,14 @@ export ntfy_url="https://ntfy.sh/channel_name"
 If you are self hosting your own instance of **ntfy**, change the **ntfy_url** parameter
 accordingly.
 
+If one wants to attach the full run-log (email body of **snapraid-daily**) as a
+seperate notification set the **ntfy_attach_run_log** parameter to **yes** in
+**snapraid-daily.conf** like so:
+
+```bash
+export ntfy_attach_run_log="yes"
+```
+
 Its also a good idea to test out the notification hook on its own before using it
 with **snapraid-daily**. To do that create what would be an email body by putting
 some text into a file like so:
