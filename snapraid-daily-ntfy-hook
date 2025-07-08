@@ -6,7 +6,7 @@
 # COPYRIGHT (C) Mark Finnan 2025
 ###################################################
 
-script_version="0.1.2"
+script_version="0.1.3"
 
 # Script Arguments
 # $1 - Email Subject
@@ -37,6 +37,11 @@ check_for_requirements() {
     echo "ERROR: curl is not installed/found in PATH - Exiting"
     exit 1
 
+  # Check for jq
+  elif [ -z $(which jq) ]; then
+    echo "ERROR: jq is not installed/found in PATH - Exiting"
+    exit 1
+
   # Check for ntfy url
   elif [ -z "${ntfy_url}" ]; then
     echo "ERROR: No ntfy_url defined - Require export ntfy_url=\"https://ntfy.sh/channel_name\" in snapraid-daily.conf - Exiting"
@@ -62,16 +67,20 @@ send_ntfy_notification() {
   local email_body="${2}"
   local email_attachment="${3}"
 
-  # Get the Number of Notifications
+  # Figure Out Number of Notifications
+  N_ntfy=1
   i=1
-  if [ ! -z "${ntfy_attach_run_log}" ] && [ ! -z "${email_attachment}" ]
+
+  # If Run Log is Enabled 
+  if [ ! -z "${ntfy_attach_run_log}" ] && [ "${ntfy_attach_run_log}" == "yes" ]
   then
-    N_ntfy=3
-  elif [ ! -z "${ntfy_attach_run_log}" ] && [ -z "${email_attachment}" ]
+    N_ntfy=$((N_ntfy+1))
+  fi
+
+  # Check for Attachment
+  if [ ! -z "${email_attachment}" ]
   then
-    N_ntfy=2
-  else
-    N_ntfy=1
+    N_ntfy=$((N_ntfy+1))
   fi
 
   # Get the Notification Icon (Tag) - Presence of an Email Attachment indicates the script
@@ -84,16 +93,13 @@ send_ntfy_notification() {
   fi
 
   # Step 1 - Generate Notification Title and Body
-
   # Specify the Notification Title as the hostname & the notification body as the email subject
   system_hostname=$(hostname --fqdn) &> "/dev/null"
   notification_title="${system_hostname}"
   notification_body="${email_title}"
 
   # Step 2 - Check for Additional Information to add to the notification body
-
-  # Check for a Thresholds Exceeded condition (it's nice to have the numbers
-  # included directly in the notification text body)
+  # Check for a Thresholds Exceeded condition
   if [ "${email_title}" == "SnapRAID-DAILY: Threshold(s) Exceeded" ]
   then
     thresholds_info="$( sed -n '/Deleted/,/Updated Threshold/{p;/Updated Threshold/q};' "${email_body}" )"
@@ -113,7 +119,7 @@ send_ntfy_notification() {
   fi
 
   # Step 3 - Send Main Notification
-  echo "Sending Notification(s) to ${ntfy_url}"
+  echo "Sending $N_ntfy Notification(s) to  ${ntfy_url}"
 
   # Send Notification using Curl - Check if there is a message parameter in the json output as a measure of success
   ntfy_response1=$(curl --silent --retry 3 -H "Title: ${notification_title}" \
@@ -125,9 +131,9 @@ send_ntfy_notification() {
   # Test the response For Success
   if [ ! -z "${ntfy_response1}"  ]
   then
-    echo "$i/$N_ntfy [Main]: Reply from ${ntfy_url} : OK"
+    echo "$i/$N_ntfy [Main]:        Reply from ${ntfy_url} : OK"
   else
-    echo "$i/$N_ntfy [Main]: Problem sending notification"
+    echo "$i/$N_ntfy [Main]:        Problem sending notification"
   fi
   i=$((i+1))
 
@@ -145,19 +151,20 @@ send_ntfy_notification() {
     # Test the Response for Success
     if [ ! -z "${ntfy_response2}" ]
     then
-      echo "$i/$N_ntfy [Run-Log]: Reply from ${ntfy_url} : OK"
+      echo "$i/$N_ntfy [Run-Log]:     Reply from ${ntfy_url} : OK"
     else
-       echo "$i/$N_ntfy [Run-Log]: Problem sending notification"
+      echo "$i/$N_ntfy [Run-Log]:     Problem sending notification"
     fi
     i=$((i+1))
-
-    # Wait a few seconds before sending the next notification
-    sleep $wait_between_notifications
   fi
 
   # Step 3 - Send Additional Notification if an Attachement is present. Same success check as above
   if [ ! -z "${email_attachment}" ]
   then
+    # Wait a few seconds before sending the next notification
+    sleep $wait_between_notifications
+
+    # Send Notification attaching command log
     ntfy_response3=$(curl --silent --retry 3 -T "${email_attachment}" \
                                              -H "Filename: "${email_attachment}"" \
                                              "${ntfy_url}" \
