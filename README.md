@@ -55,7 +55,7 @@ Alternatively to install manually, do the following:
 
 ```bash
 sudo apt install git # (On Debian based distros)
-sudo dnf install git # (On Fedora)
+sudo dnf install git-core # (On Fedora)
 
 git clone https://github.com/zoot101/snapraid-daily-hooks
 cd snapraid-daily-hooks
@@ -68,9 +68,12 @@ sudo cp ./manual/snapraid-daily-hooks.1.gz /usr/share/man/man1/
 
 Next ensure all dependencies are installed:
 
-If on Debian, one can do:
 ```bash
-sudo apt install coreutils snapraid bash findutils jq curl gawk
+# On Debian based distros
+sudo apt install coreutils snapraid bash jq curl gawk
+
+# On Fedora
+sudo dnf install coreutils snapraid bash jq curl gawk
 ```
 
 # snapraid-daily-service-hook
