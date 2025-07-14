@@ -1,4 +1,4 @@
-# snapraid-daily-hooks
+# SnapRAID-DAILY-Hooks
 
 Collection of hook scripts for **SnapRAID-DAILY**   
 https://github.com/zoot101/snapraid-daily
