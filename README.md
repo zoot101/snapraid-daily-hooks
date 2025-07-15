@@ -11,9 +11,14 @@ is running and restart them afterwards.
 
 - [Description](#description)
 - [Installation and Setup](#installation-and-setup)
-- [snapraid-daily-service-hook](#snapraid-daily-service-hook)
+- [SnapRAID-DAILY-Service-Hook](#snapraid-daily-service-hook)
   - [Running as a Non-Root User](#running-as-a-non-root-user)
-- [snapraid-daily-ntfy-hook](#snapraid-daily-ntfy-hook)
+- [SnapRAID-Daily-ntfy-Hook](#snapraid-daily-ntfy-hook)
+  - [ntfy Hook Test](#ntfy-hook-test)
+- [SnapRAID-Daily-Healthchecks-Hook](#snapraid-daily-healthchecks-hook)
+  - [Healthchecks URLs](#healthchecks-urls)
+  - [Healthchecks Hook Test](#healthchecks-hook-test)
+- [Some Notes on Creating Hook Scripts](#some-notes-on-creating-hook-scripts)
 
 # Description
 
@@ -76,7 +81,7 @@ sudo apt install coreutils snapraid bash jq curl gawk
 sudo dnf install coreutils snapraid bash jq curl gawk
 ```
 
-# snapraid-daily-service-hook
+# SnapRAID-DAILY-Service-Hook
 
 This script stops a list of services using **systemd** when the main script
 starts, and restarts them when the main script finishes. It is intended to be used
@@ -167,7 +172,7 @@ snapraid-daily-service-hook start
 snapraid-daily-service-hook end
 ```
 
-# snapraid-daily-ntfy-hook
+# SnapRAID-DAILY-ntfy-Hook
 
 This is a hook script that allows usage of the **ntfy** notification service here:
 
@@ -207,6 +212,8 @@ done by sending a seperate notification again and attaching the command error lo
 This means that up to 3 notifications are sent depending on the circumstances and
 input options being used.
 
+## ntfy Hook Test
+
 Its also a good idea to test out the notification hook on its own before using it
 with **snapraid-daily**. To do that create what would be an email body by putting
 some text into a file like so:
@@ -234,6 +241,100 @@ snapraid-daily-ntfy-hook "SnapRAID-DAILY: Success Test" test_file1.txt
 # Test a Run that ends in Error
 snapraid-daily-ntfy-hook "SnapRAID-DAILY: Warning Test" test_file1.txt test_file2.txt
 ```
+
+# SnapRAID-DAILY-Healthchecks-Hook
+
+This is a hook script for use with Healthchecks.io here:
+
+https://healthchecks.io
+
+It is a nice service that allows one to monitor up to 20 scheduled tasks for free,
+and if one of those tasks is found to have a problem, a wide varity of notification
+services can be configured on healthchecks.io like Discord, Telegram, Standard
+Email etc.
+
+To use this hook, the following is required in the snapraid-daily config file
+(**snapraid-daily.conf**)
+
+```bash
+# Specify Path to Notification Hook
+notification_hook="/usr/bin/snapraid-daily-healthchecks-hook"
+
+# Healthchecks.io URLs
+healthchecks_url="https://hc-ping.com/123...456...abc"
+healthchecks_sync_url="https://hc-ping.com/123abzz...123"
+healthchecks_scrub_url="https://hc-ping.com/78990...frtg"
+```
+
+## Healthchecks URLs
+
+The 3 URL settings are explained below.
+
+### healthchecks\_url
+
+This is intended if one is running the main **snapraid-daily** script in the
+default configuration where a sync operation and scrub operation are carried
+out each time the main **snapraid-daily** script is called. (**-s|--sync-only**
+or **-c|--scrub-only** arguments are not being used).
+
+This URL is contacted each time **snapraid-daily** finishes, and the healthchecks.io
+server is explicitly notified of a successful run or a run ending in error/warning
+after the main **snapraid-daily** script complets.
+
+### healthchecks\_sync\_url & healthchecks\_scrub\_url
+
+These URLs are intended to account for the case whereby one is seperating the
+sync and scrub operations of the main **snapraid-daily** script.
+
+For sync operations the **healthchecks_sync_url** is contacted to specify
+either success or error/warning if the main **snapraid-daily** script is called with
+the **-s|--sync-only** argument.
+
+For scrub operations the **healthchecks_scrub_url** is contacted to specify
+either success or error/warning if the main **snapraid-daily** scrilpt is called with
+the **-c|--scrub-only** argument.
+
+These are both optional and can be omitted from **snapraid-daily.conf** if one wants
+to just the **healthchecks_url** setting only. Alternatively just one of them can
+be used also.
+
+## Healthchecks Hook Test
+
+It is a good idea to test out the hook script on its own before using it with
+**snapraid-daily** directly. To do that, follow the below procedure.
+
+Create a sample email body file (body1.txt) that contains the following lines:
+
+* **Run-Sync: YES**   
+* **Run-Scrub: YES**   
+
+These are part of the intial greeting **snapraid-daily** prints out and are used
+as a basis to determine what the main script was called with.
+
+To simulate a default run, use the above file contents. To simulate a sync operation only or
+a scrub operation only, change the "YES" to "NO" accordingly.
+
+Then populate **snapraid-daily.conf** with the path to the hook script and the
+desired healthchecks.io URLs, and follow the procedure below.
+
+Call the hook script directly exactly how **snapraid-daily** will call it - where
+the 1st argument is what would be the email subject, the 2nd is what would be the
+email body, and the 3rd (if present) is the logfile of the command that generated
+the error.
+
+```bash
+# Source main snapraid-daily.conf to load variables
+source snapraid-daily.conf
+
+# Test a Success Run
+/usr/bin/snarpaid-daily-healthchecks-hook "SnapRAID-DAILY: All OK" "body1.txt"
+
+# Test an Error/Warning Run
+/usr/bin/snapraid-daily-healthchecks-hook "SnapRAID-DAILY: Sync Warning(s)" "body1.txt" "body3.txt"
+```
+
+One can then inspect the healthchecks.io WebUI to see if the expected result is
+produced. Note the "body3.txt" argument isn't important above, it can be anything.
 
 # Some Notes on Creating Hook Scripts
 
