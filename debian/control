@@ -24,5 +24,6 @@ Recommends:
  sudo (>=1.7),
 Description: Collection of Hook Scripts for use with SnapRAID-DAILY
  * Hook for Sending Notifications via NTFY (https://ntfy.sh)
+ * Hook for Healthchecks.io (https://healthchecks.io)
  * Hook for Stopping/Starting Services via systemd
 
