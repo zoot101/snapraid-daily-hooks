@@ -1,4 +1,4 @@
 #! /usr/bin/dh-exec
 snapraid-daily-ntfy-hook /usr/bin
+snapraid-daily-healthchecks-hook /usr/bin
 snapraid-daily-service-hook /usr/bin
-

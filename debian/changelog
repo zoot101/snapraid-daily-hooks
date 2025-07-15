@@ -1,3 +1,13 @@
+snapraid-daily-hooks (0.2.0-1) stable; urgency=medium
+
+  * Added a hook script for use with Healthchecks.io
+
+    - Updated the manpage to add details.
+
+  * Added a banner printout to the ntfy hook like the main script.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Tue, 15 Jul 2025 13:03:43 +0100
+
 snapraid-daily-hooks (0.1.4-1) stable; urgency=medium
 
   * Fixed issue with NTFY hook whereby sometimes the number
