@@ -3,7 +3,7 @@
 Collection of hook scripts for **SnapRAID-DAILY**   
 https://github.com/zoot101/snapraid-daily
 
-These extend the functionality of **snapraid-daily** to add additional
+These extend the functionality of **SnapRAID-DAILY** to add additional
 notification methods or to stop a list of services while the main script
 is running and restart them afterwards.
 
