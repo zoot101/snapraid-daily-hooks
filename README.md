@@ -25,21 +25,22 @@ is running and restart them afterwards.
 The following hook scripts are included (more will be added in the future)
 
 These hook scripts are intended to be used with the start and end hook function
-of **snapraid-daily**.
+of **SnapRAID-DAILY**.
 
 * **snapraid-daily-service-hook**
 
 These hook scripts then are intended to add additional notification functionality
-to **snapraid-daily**.
+to **SnapRAID-DAILY**.
 
-* **snapraid-daily-ntfy-hook**   
+* **snapraid-daily-ntfy-hook**
+* **snapraid-daily-healthchecks-hook**    
 
 # Installation and Setup
-Just like with **snapraid-daily**, a package is provided for Debian and its 
+Just like with **SnapRAID-DAILY**, a package is provided for Debian and its 
 derivatives here.
 
 To install the package download it from the releases page. Note that the main
-script **snapraid-daily** is a package dependency, so install that package first
+script **SnapRAID-DAILY** is a package dependency, so install that package first
 from here:   
 https://github.com/zoot101/snapraid-daily
 
@@ -85,7 +86,7 @@ sudo dnf install coreutils snapraid bash jq curl gawk
 
 This script stops a list of services using **systemd** when the main script
 starts, and restarts them when the main script finishes. It is intended to be used
-with the start and end hook feature of **snapraid-daily**.
+with the start and end hook feature of **SnapRAID-DAILY**.
 
 To use it, specify the following in the main script configuration file (**snapraid-daily.conf**)
 
@@ -115,8 +116,8 @@ Note that numbers should not be skipped. For example if service1, service2 and s
 given and subsequently service5, service6 and service7 are specified in the config file,
 then the later 3 are ignored. **Up to 20 Services are supported**.
 
-Finally it is a good idea to test the script out on its own before using it with **snapraid-daily**
-directly. Do that like so (as root) by calling the hook script exactly how **snapraid-daily** will
+Finally it is a good idea to test the script out on its own before using it with **SnapRAID-DAILY**
+directly. Do that like so (as root) by calling the hook script exactly how **SnapRAID-DAILY** will
 call it:
 
 ```bash
@@ -134,7 +135,7 @@ snapraid-daily-service-hook end
 
 Typically root is required to use the **systemctl** command to stop/start services.
 
-However, if one does not run the main **snapraid-daily** script as root, the hook script is also
+However, if one does not run the main **SnapRAID-DAILY** script as root, the hook script is also
 written to handle this case through the use of **sudo**.
 
 To use it in this case, add your user to the sudo group like so. If the script is not ran
@@ -159,7 +160,7 @@ username ALL=(root) NOPASSWD:/usr/bin/systemctl
 ```
 
 Lastly test out the script like before while logged in as the user that will run the
-main **snapraid-daily** script.
+main **SnapRAID-DAILY** script.
 
 ```bash
 # Source the main config
@@ -186,7 +187,7 @@ is very easy to get notifications on your phone, it is also very easy to self ho
 comes highly recommended from the author!
 
 Once you have it setup from following the above documentation, to use this hook script
-with **snapraid-daily**, put the following into **snapraid-daily.conf**
+with **SnapRAID-DAILY**, put the following into **snapraid-daily.conf**
 
 ```bash
 notification_hook="/usr/bin/snapraid-daily-ntfy-hook"
@@ -201,7 +202,7 @@ Because push notifications are geared more towards short messages, the full emai
 log is not used as the body of the notification message. Instead the much shorter
 email subject ex. "SnapRAID-DAILY: All OK" is used as the text body.
 
-If one wants to attach the full run-log (email body of **snapraid-daily**) as a
+If one wants to attach the full run-log (email body of **SnapRAID-DAILY**) as a
 seperate notification set the **ntfy_attach_run_log** parameter to **yes** in
 **snapraid-daily.conf** like above. Comment out or omit if the email subject
 is enough.
@@ -215,7 +216,7 @@ input options being used.
 ## ntfy Hook Test
 
 Its also a good idea to test out the notification hook on its own before using it
-with **snapraid-daily**. To do that create what would be an email body by putting
+with **SnapRAID-DAILY**. To do that create what would be an email body by putting
 some text into a file like so:
 
 ```bash
@@ -226,7 +227,7 @@ echo "00:00:00 : This is a test" > test_file1.txt
 echo "This is a sample SnapRAID command logfile showing an error" > test_file2.txt
 ```
 
-Next call the hook script directly exactly how **snapraid-daily** will call it - where
+Next call the hook script directly exactly how **SnapRAID-DAILY** will call it - where
 the 1st argument is what would be the email subject, the 2nd is what would be the
 email body, and the 3rd (if present) is the logfile of the command that generated
 the error.
@@ -253,7 +254,7 @@ and if one of those tasks is found to have a problem, a wide varity of notificat
 services can be configured on healthchecks.io like Discord, Telegram, Standard
 Email etc.
 
-To use this hook, the following is required in the snapraid-daily config file
+To use this hook, the following is required in the **SnapRAID-DAILY** config file
 (**snapraid-daily.conf**)
 
 ```bash
@@ -272,26 +273,26 @@ The 3 URL settings are explained below.
 
 ### healthchecks\_url
 
-This is intended if one is running the main **snapraid-daily** script in the
+This is intended if one is running the main **SnapRAID-DAILY** script in the
 default configuration where a sync operation and scrub operation are carried
-out each time the main **snapraid-daily** script is called. (**-s|--sync-only**
+out each time the main **SnapRAID-DAILY** script is called. (**-s|--sync-only**
 or **-c|--scrub-only** arguments are not being used).
 
-This URL is contacted each time **snapraid-daily** finishes, and the healthchecks.io
+This URL is contacted each time **SnapRAID-DAILY** finishes, and the healthchecks.io
 server is explicitly notified of a successful run or a run ending in error/warning
-after the main **snapraid-daily** script complets.
+after the main **SnapRAID-DAILY** script complets.
 
 ### healthchecks\_sync\_url & healthchecks\_scrub\_url
 
 These URLs are intended to account for the case whereby one is seperating the
-sync and scrub operations of the main **snapraid-daily** script.
+sync and scrub operations of the main **SnapRAID-DAILY** script.
 
 For sync operations the **healthchecks_sync_url** is contacted to specify
-either success or error/warning if the main **snapraid-daily** script is called with
+either success or error/warning if the main **SnapRAID-DAILY** script is called with
 the **-s|--sync-only** argument.
 
 For scrub operations the **healthchecks_scrub_url** is contacted to specify
-either success or error/warning if the main **snapraid-daily** scrilpt is called with
+either success or error/warning if the main **SnapRAID-DAILY** scrilpt is called with
 the **-c|--scrub-only** argument.
 
 These are both optional and can be omitted from **snapraid-daily.conf** if one wants
@@ -301,14 +302,14 @@ be used also.
 ## Healthchecks Hook Test
 
 It is a good idea to test out the hook script on its own before using it with
-**snapraid-daily** directly. To do that, follow the below procedure.
+**SnapRAID-DAILY** directly. To do that, follow the below procedure.
 
 Create a sample email body file (body1.txt) that contains the following lines:
 
 * **Run-Sync: YES**   
 * **Run-Scrub: YES**   
 
-These are part of the intial greeting **snapraid-daily** prints out and are used
+These are part of the intial greeting **SnapRAID-DAILY** prints out and are used
 as a basis to determine what the main script was called with.
 
 To simulate a default run, use the above file contents. To simulate a sync operation only or
@@ -317,7 +318,7 @@ a scrub operation only, change the "YES" to "NO" accordingly.
 Then populate **snapraid-daily.conf** with the path to the hook script and the
 desired healthchecks.io URLs, and follow the procedure below.
 
-Call the hook script directly exactly how **snapraid-daily** will call it - where
+Call the hook script directly exactly how **SnapRAID-DAILY** will call it - where
 the 1st argument is what would be the email subject, the 2nd is what would be the
 email body, and the 3rd (if present) is the logfile of the command that generated
 the error.
