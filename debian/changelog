@@ -1,3 +1,17 @@
+snapraid-daily-hooks (0.3.0-1) stable; urgency=medium
+
+  * Added a hook script for use with Apprise
+    - Generates condensed version of the Email Body that better suits
+      services like ntfy or Telegram.
+
+  * Added dependency for Apprise since it is now packaged and 
+    incorporated into Debian since 12 (Bookworm).
+
+  * Removed ntfy hook script as its functionality is much better served
+    via Apprise.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Thu, 17 Jul 2025 20:19:22 +0100
+
 snapraid-daily-hooks (0.2.0-1) stable; urgency=medium
 
   * Added a hook script for use with Healthchecks.io

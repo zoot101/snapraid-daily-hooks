@@ -18,12 +18,13 @@ Depends:
  findutils (>=4.8),
  jq (>=1.5.0),
  curl (>=8.0),
+ apprise (>=1.2.0),
  gawk,
  ${misc:Depends},
 Recommends:
  sudo (>=1.7),
 Description: Collection of Hook Scripts for use with SnapRAID-DAILY
- * Hook for Sending Notifications via NTFY (https://ntfy.sh)
+ * Hook for Sending Notifications via Apprise (https://pypi.org/project/apprise)
  * Hook for Healthchecks.io (https://healthchecks.io)
- * Hook for Stopping/Starting Services via systemd
+ * Hook for Stopping/Starting Services via Systemd
 
