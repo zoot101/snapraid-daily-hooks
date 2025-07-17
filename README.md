@@ -118,7 +118,9 @@ The only other thing to mention here is that to have **Apprise** to send emails 
 an email on standard providers to another email (which is what **mutt** does in the parent script),
 this is the only syntax for the URL that the author has been able to get to work.
 
-* **mailto://server.example:password@gmail.com?to=email-to-send-notifications-to@example.org**
+```bash
+mailto://server.example:password@gmail.com?to=email-to-send-notifications-to@example.org
+```
 
 (The **from** or **name** parameters don't seem to work if sending to another email, at least in the
 authors experience). Oauth2 does not appear to be supported yet either. Hence, the author recommends
@@ -128,7 +130,7 @@ for everything else that isn't email.
 Nonetheless, the script allows sending emails via **Apprise** if desired. See the documentation
 for emails via **Apprise** here for more information:
 
-* https://github.com/caronc/apprise/wiki/Notify\_email
+* [https://github.com/caronc/apprise/wiki/Notify_email](#https://github.com/caronc/apprise/wiki/Notify_email)
 
 To use this hook script with **SnapRAID-DAILY**, put the following in **snapraid-daily.conf**:
 
@@ -148,7 +150,9 @@ export apprise_attach_runlog="yes"
 
 The "URLs" above should be in the format specifed on the Apprise documentation for example
 
-* **ntfys://ntfy.sh/channel_name** (For ntfy)
+```bash
+ntfys://ntfy.sh/channel_name # (For ntfy)
+```
 
 The Urls should be defined **apprise_url1** to **apprise_urlN**, where N is the number of services
 one wants to use Apprise to send notifications to.
