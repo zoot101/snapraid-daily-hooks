@@ -47,7 +47,7 @@ To install the **SnapRAID-DAILY-Hooks** debian package provided here, firstly
 install the package for the main **SnapRAID-DAILY** script by downloading it from
 the release page here:
 
-* [https://github.com/zoot101/snapraid-daily](https://github.com/zoot101/snapraid-daily/releases)
+* [https://github.com/zoot101/snapraid-daily/releases](https://github.com/zoot101/snapraid-daily/releases)
 
 Then use apt to install the package like so:
 
@@ -59,7 +59,10 @@ sudo apt install ./snapraid-daily_1.4.1-1_amd64.deb
 ```
 
 This is necessary as the main script **SnapRAID-DAILY** is a package dependency,
-for the **SnapRAID-DAILY-Hooks** package.
+for the **SnapRAID-DAILY-Hooks** package. Next download the package for the hooks
+from here:
+
+* [https://github.com/zoot101/snapraid-daily-hooks/releases](https://github.com/zoot101/snapraid-daily-hooks/releases)
 
 Then, the install of the **SnapRAID-DAILY-Hooks** package can be done like so:
 
