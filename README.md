@@ -45,22 +45,23 @@ installed automatically.
 
 To install the **SnapRAID-DAILY-Hooks** debian package provided here, firstly
 install the package for the main **SnapRAID-DAILY** script by downloading it from
-the release page here, then use apt to install like below.
+the release page here:
 
 * [https://github.com/zoot101/snapraid-daily](https://github.com/zoot101/snapraid-daily/releases)
+
+Then use apt to install the package like so:
 
 ```bash
 # Better to install with apt instead of dpkg to install the dependencies
 # automatically.
-apt install ./snapraid-daily_1.4.1-1_amd64.deb
+sudo apt update
+sudo apt install ./snapraid-daily_1.4.1-1_amd64.deb
 ```
 
 This is necessary as the main script **SnapRAID-DAILY** is a package dependency,
 for the **SnapRAID-DAILY-Hooks** package.
 
-
-Then, the install of the **SnapRAID-DAILY-Hooks** package 
-can be done like so:
+Then, the install of the **SnapRAID-DAILY-Hooks** package can be done like so:
 
 ```bash
 # Once again - it's better to use apt so that the dependencies are
@@ -71,16 +72,20 @@ sudo apt install ./snapraid-daily-hooks_0.3.0-1_amd64.deb
 Alternatively to install manually, do the following:
 
 ```bash
-sudo apt install git # (On Debian based distros)
+# (On Debian based distros)
+sudo apt update
+sudo apt install git
+
+# (On Fedora)
+sudo dnf update
 sudo dnf install git-core # (On Fedora)
 
 # Clone the Git repo
 git clone https://github.com/zoot101/snapraid-daily-hooks
 cd snapraid-daily-hooks
 
-chmod +x snapraid-daily-*
-
 # Install the scripts and manual entry manually
+chmod +x snapraid-daily-*
 sudo cp snapraid-daily-* /usr/bin/
 sudo cp ./manual/snapraid-daily-hooks.1.gz /usr/share/man/man1/
 ```
