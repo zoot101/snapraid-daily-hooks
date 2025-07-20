@@ -198,6 +198,8 @@ Touch: Not Needed
 Sync: Completed OK
 Scrub: Completed OK
 End Hook: Completed OK
+=======================
+Overall Result: SUCCESS
 ```
 
 The **apprise_attach_runlog** setting shown above in the config file sample is used to
