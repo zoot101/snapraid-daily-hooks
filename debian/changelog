@@ -1,3 +1,10 @@
+snapraid-daily-hooks (0.3.1-1) stable; urgency=medium
+
+  * Added detection of overall result printout to compact log generation
+    in Apprise Hook.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Sun, 20 Jul 2025 10:01:39 +0100
+
 snapraid-daily-hooks (0.3.0-1) stable; urgency=medium
 
   * Added a hook script for use with Apprise
