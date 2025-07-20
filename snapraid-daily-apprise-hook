@@ -14,7 +14,7 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.1.2"
+script_version="0.1.3"
 
 # Script Variables
 max_supported_apprise_urls=20
@@ -438,6 +438,19 @@ generate_compact_runlog() {
   # End Hook
   ###################################################
   check_for_end_hook
+
+  ###################################################
+  # Check for Overall Result (Added in snapraid-daily-1.4.2)
+  ###################################################
+  if grep_cmd "Result: SUCCESS"
+  then
+    log "======================="
+    log "Overall Result: Success"
+  elif grep_cmd "Result: WARNING(S)"
+  then
+    log "======================="
+    log "Overall Result: Warning(s)"
+  fi
 }
 
 
