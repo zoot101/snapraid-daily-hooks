@@ -1,3 +1,23 @@
+snapraid-daily-hooks (0.3.2-1) stable; urgency=medium
+
+  * Added script version to Apprise hook printouts.
+
+  * Added the SnapRAID-DAILY Script version to the condensed
+    notification log printout.
+
+  * Added an option to the Apprise hook to specify a custom path to
+    the apprise binary, for the Apprise hook script. This for cases
+    where the apprise binary is in a different location than $PATH
+    (Closes #2).
+
+  * Where the main script ends in Warning and passes in a logfile from
+    the SnapRAID Command that generated the error, a check is now done
+    in the Apprise hook on the size of this file and the user is notified
+    if it is greater than 15MB. This is because this can cause issues
+    for certain notification services (ntfy is an example) (Closes #1).
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Fri, 25 Jul 2025 21:56:10 +0100
+
 snapraid-daily-hooks (0.3.1-1) stable; urgency=medium
 
   * Added detection of overall result printout to compact log generation
