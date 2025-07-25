@@ -16,7 +16,9 @@ snapraid-daily-hooks (0.3.2-1) stable; urgency=medium
     if it is greater than 15MB. This is because this can cause issues
     for certain notification services (ntfy is an example) (Closes #1).
 
- -- Mark Finnan <mfinnan101@gmail.com>  Fri, 25 Jul 2025 21:56:10 +0100
+  * No changes to other hook scripts.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Fri, 25 Jul 2025 22:00:10 +0100
 
 snapraid-daily-hooks (0.3.1-1) stable; urgency=medium
 
