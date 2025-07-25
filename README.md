@@ -154,6 +154,10 @@ export apprise_urlN="etc"
 
 # Attach the main script runlog (email body)
 export apprise_attach_runlog="yes"
+
+# If apprise is installed in a non-standard location
+# specify the path to its binary here. Uncomment if necessary
+#export apprise_binary_path="/path/to/binary/apprise"
 ```
 
 The "URLs" above should be in the format specifed on the Apprise documentation for example
@@ -191,6 +195,7 @@ SnapRAID-DAILY: All OK
 Hostname: server.example.org
 Host OS: Debian GNU/Linux 13 (Trixie)
 SnapRAID Version: 12.4
+SnapRAID-DAILY Version: 1.4.3
 =======================
 Initial Status: OK
 Start Hook: Completed OK
@@ -205,6 +210,10 @@ Overall Result: SUCCESS
 The **apprise_attach_runlog** setting shown above in the config file sample is used to
 attach the default email body as an attachment to the non-email notification services like
 **ntfy** or **Telegram**.
+
+The **apprise_binary_path** option is to override the path to the apprise binary
+if the installation of apprise is in a non-standard location. Leave commented out
+if not using.
 
 This is useful to get more information from notifications to services like **Telegram**
 or **ntfy** alone, and allows them to act as a true substitue for standard emails if desired.
