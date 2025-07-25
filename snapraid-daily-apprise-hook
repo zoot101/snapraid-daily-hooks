@@ -224,12 +224,14 @@ generate_compact_runlog() {
   # This is to allow for the scenario where the script is running on multiple
   # machines and using the same ntfy/telegram/etc. channel/chat
   snapraid_version=$(snapraid -V | awk '{print $2}' | sed 's/v//')
+  snapraid_daily_version=$(grep -w "SnapRAID-DAILY Version:" "${runlog}" | awk '{print $NF}')
   system_hostname=$(hostname --fqdn) &> "/dev/null"
   os_name=$(grep -w "^PRETTY_NAME" "/etc/os-release" | sed 's/PRETTY_NAME="//;s/"$//') &> "/dev/null"  
   log "======================="
   if [ ! -z "${system_hostname}" ]; then log "Hostname:" "${system_hostname}";fi
   if [ ! -z "${os_name}" ]; then log "Host OS:" "${os_name}"; fi
   if [ ! -z "${snapraid_version}" ]; then log "SnapRAID Version:" "${snapraid_version}"; fi
+  if [ ! -z "${snapraid_daily_version}" ]; then log "SnapRAID-DAILY Version:" "${snapraid_daily_version}";fi
   log "======================="
 
   # Check the main email body (runlog) for what was ran in
