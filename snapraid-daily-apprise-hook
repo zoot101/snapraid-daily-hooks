@@ -14,7 +14,7 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.1.3"
+script_version="0.1.4"
 
 # Script Variables
 max_supported_apprise_urls=20
@@ -30,8 +30,15 @@ main() {
   # Print Banner Like Main Script
   echo ""
   echo "##############################"
-  echo "# SnapRAID-DAILY: Apprise Hook"
+  echo "# SnapRAID-DAILY: Apprise Hook Version ${script_version}"
   echo "##############################"
+  echo " * Apprise Binary Path: ${apprise_binary_path}"
+  if [ "${apprise_attach_runlog}" == "yes" ]
+  then
+    echo " * Attach Full Runlog: YES"
+  else
+    echo " * Attach Full Runlog: NO"
+  fi
 
   # Find out how many apprise urls are defined in
   # /etc/snapraid-daily.conf
@@ -66,11 +73,22 @@ grep_cmd() {
 # Check for Requirements
 check_for_requirements() {
 
-  # Check that Apprise is installed
-  if [ -z $(which apprise) ]
+  # Check for Apprise - 1st check if a custom binary path is supplied
+  if [ ! -z "${apprise_binary_path}" ]
+  then
+    if [ ! -x "${apprise_binary_path}" ]
+    then
+      echo "ERROR: Supplied apprise binary path: ${apprise_binary_path} does not exist or is not executable - Exiting"
+      exit 1
+    fi
+
+  # Otherwise fall back to the output from which, exit if that is empty
+  elif [ -z $(which apprise) ]
   then
     echo "ERROR: apprise is not installed - Exiting..."
     exit 1
+  else
+    apprise_binary_path="$(which apprise)"
   fi
 
   # Check that the apprise_attach_runlog parameter is defined in snapraid-daily.conf
@@ -149,7 +167,7 @@ check_apprise_urls() {
       if [ -z "${!apprise_url_to_check}" ]
       then
         N_Apprise_Urls=$((i-1))
-        echo "Found $N_Apprise_Urls Apprise URL(s) defined in config"
+        echo " * Found $N_Apprise_Urls Apprise URL(s) defined in config"
         echo ""
         break
       fi
@@ -504,7 +522,7 @@ send_notifications() {
     then
       echo " * Sending Email to URL:" $i/$N_Apprise_Urls"..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | apprise -t "${notification_title}" \
+      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
                                            "${!apprise_url_to_contact}"
 
     # Case 2 - Email URL & Run with Warning/Error (Attachment Present)
@@ -512,7 +530,7 @@ send_notifications() {
     then
       echo " * Sending Email to URL:" $i/$N_Apprise_Urls "with command log..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | apprise -t "${notification_title}" \
+      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
                                            --attach "${notification_attachment}" \
                                            "${!apprise_url_to_contact}"
 
@@ -521,7 +539,7 @@ send_notifications() {
     then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls"..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | apprise -t "${notification_title}" \
+      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
                                            "${!apprise_url_to_contact}"
     
     # Case 4 - Non-Email URL, Successful Run & Main Runlog Attached
@@ -529,7 +547,7 @@ send_notifications() {
     then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with runlog..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | apprise -t "${notification_title}" \
+      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
                                            --attach "${email_body}" \
                                            "${!apprise_url_to_contact}"
 
@@ -538,7 +556,7 @@ send_notifications() {
     then 
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with command log..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | apprise -t "${notification_title}" \
+      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
                                            --attach "${notification_attachment}" \
                                            "${!apprise_url_to_contact}"
  
@@ -547,7 +565,7 @@ send_notifications() {
     then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with command log and runlog..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | apprise -t "${notification_title}" \
+      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
                                            --attach "${email_body}" \
                                            --attach "${notification_attachment}" \
                                            "${!apprise_url_to_contact}"
@@ -559,7 +577,7 @@ send_notifications() {
     else
       echo "   - Problem sending Notification"
       echo "   - Suggest trying out the following command to debug:"
-      echo "     $ apprise -vv -t Test1 -b Test2 ${!apprise_url_to_contact}"
+      echo "     $ ${apprise_binary_path} -vv -t Test1 -b Test2 ${!apprise_url_to_contact}"
     fi
 
     # Invoke some wait time to space out notifications
