@@ -1,3 +1,17 @@
+snapraid-daily-hooks (0.3.3-1) stable; urgency=medium
+
+  * Updated Apprise hook condensed log function to be compatible
+    with new versions of the main SnapRAID-DAILY script that
+    will support multiple start/end/notification hooks.
+    - Support for older versions of the main script is uneffected.
+
+  * Fixed issue where overall result did not appear in condensed
+    log for non-email notifications for conditions where the main
+    script ended in warning along with some other cases in the Apprise
+    Hook.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Sun, 27 Jul 2025 19:43:58 +0100
+
 snapraid-daily-hooks (0.3.2-1) stable; urgency=medium
 
   * Added script version to Apprise hook printouts.
