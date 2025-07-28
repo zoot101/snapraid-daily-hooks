@@ -87,10 +87,10 @@ sudo dnf install git-core # (On Fedora)
 git clone https://github.com/zoot101/snapraid-daily-hooks
 cd snapraid-daily-hooks
 
-# Install the scripts and manual entry manually
+# Install the scripts and manual entries manually
 chmod +x snapraid-daily-*
 sudo cp snapraid-daily-* /usr/bin/
-sudo cp ./manual/snapraid-daily-hooks.1.gz /usr/share/man/man1/
+sudo cp ./manual/*.1.gz /usr/share/man/man1/
 ```
 
 Next ensure all dependencies are installed:
