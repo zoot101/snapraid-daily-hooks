@@ -1,3 +1,14 @@
+snapraid-daily-hooks (0.3.4-1) stable; urgency=medium
+
+  * Completed Lintian check on Debian package.
+
+  * Removed original manpage in favor of separate manpages for each
+    script.
+
+  * Minor tweaks to maintainer script.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Mon, 28 Jul 2025 14:47:12 +0100
+
 snapraid-daily-hooks (0.3.3-1) stable; urgency=medium
 
   * Updated Apprise hook condensed log function to be compatible
