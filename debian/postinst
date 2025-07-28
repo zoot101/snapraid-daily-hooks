@@ -17,12 +17,17 @@ if [ "${1}" == "configure" ] && [ -z "${2}" ]
 then
   echo ""
   echo "################################"
-  echo "# Hook Scripts for snapraid-daily"
+  echo "# Hook Scripts for SnapRAID-DAILY"
   echo "################################"
   echo ""
   echo "  To get started have a look at the manual entry:"
-  echo "  snapraid-daily-hooks(1)"
-  echo "  $ man snapraid-daily-hooks"
+  echo "  snapraid-daily-apprise-hook(1)"
+  echo "  snapraid-daily-healthchecks-hook(1)"
+  echo "  snapraid-daily-service-hook(1)"
+  echo ""
+  echo "  $ man snapraid-daily-apprise-hook"
+  echo "  $ man snapraid-daily-healthchecks-hook"
+  echo "  $ man snapraid-daily-service-hook"
   echo ""
   exit 0
 else
