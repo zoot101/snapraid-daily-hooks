@@ -140,11 +140,12 @@ for emails via **Apprise** here for more information:
 
 * [https://github.com/caronc/apprise/wiki/Notify_email](https://github.com/caronc/apprise/wiki/Notify_email)
 
-To use this hook script with **SnapRAID-DAILY**, put the following in **snapraid-daily.conf**:
+To use this hook script with **SnapRAID-DAILY**, put the following in **snapraid-daily.conf**, if already using
+a notification hook change **notification_hook1** to **notification_hook2** etc.
 
 ```bash
 # Path to Hook (Change if not installed via the Package)
-notification_hook="/usr/bin/snapraid-daily-apprise-hook"
+notification_hook1="/usr/bin/snapraid-daily-apprise-hook"
 
 # Define the Apprise "URLs"
 export apprise_url1="ntfys://channel_name"
@@ -279,12 +280,13 @@ services can be configured on **healthchecks.io** like **Discord**, **Telegram**
 Standard Email etc.
 
 To use this hook, the following is required in the snapraid-daily config file
-(**snapraid-daily.conf**)
+(**snapraid-daily.conf**). If already using a notification hook, change **notification_hook1**
+to **notification_hook2** etc.
 
 ```bash
 # Specify Path to Notification Hook
 # (Change if not installed via the Debian Package)
-notification_hook="/usr/bin/snapraid-daily-healthchecks-hook"
+notification_hook1="/usr/bin/snapraid-daily-healthchecks-hook"
 
 # Healthchecks.io URLs
 healthchecks_url="https://hc-ping.com/123...456...abc"
@@ -366,13 +368,15 @@ This script stops a list of services using **systemd** when the main script
 starts, and restarts them when the main script finishes. It is intended to be used
 with the start and end hook feature of **SnapRAID-DAILY**.
 
-To use it, specify the following in the main script configuration file (**snapraid-daily.conf**)
+To use it, specify the following in the main script configuration file (**snapraid-daily.conf**),
+if already using a start and end hook, change **start_hook1** to **start_hook2** and **end_hook1**
+to **end_hook2** etc.
 
 ```bash
 # Specify path to hook script for start_hook and end_hook
 # parameters - change if needed
-start_hook="/usr/bin/snapraid-daily-service-hook"
-end_hook="/usr/bin/snapraid-daily-service-hook"
+start_hook1="/usr/bin/snapraid-daily-service-hook"
+end_hook1="/usr/bin/snapraid-daily-service-hook"
 
 # Specify the serivces to be stopped and then later
 # re-started
