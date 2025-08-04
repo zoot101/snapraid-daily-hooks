@@ -1,3 +1,13 @@
+snapraid-daily-hooks (0.3.4-2) stable; urgency=medium
+
+  * Removed build dependency on dh-exec as it was unused.
+
+  * Removed postinst script.
+
+  * Package is now 100% lintian clean with no overrides required.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Sun, 03 Aug 2025 13:26:48 +0100
+
 snapraid-daily-hooks (0.3.4-1) stable; urgency=medium
 
   * Completed Lintian check on Debian package.
