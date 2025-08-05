@@ -55,7 +55,7 @@ Then use apt to install the package like so:
 # Better to install with apt instead of dpkg to install the dependencies
 # automatically.
 sudo apt update
-sudo apt install ./snapraid-daily_1.4.1-1_amd64.deb
+sudo apt install ./snapraid-daily_1.5.1-1_amd64.deb
 ```
 
 This is necessary as the main script **SnapRAID-DAILY** is a package dependency,
@@ -69,7 +69,7 @@ Then, the install of the **SnapRAID-DAILY-Hooks** package can be done like so:
 ```bash
 # Once again - it's better to use apt so that the dependencies are
 # automatically installed
-sudo apt install ./snapraid-daily-hooks_0.3.0-1_amd64.deb
+sudo apt install ./snapraid-daily-hooks_0.3.5-1_amd64.deb
 ```
 
 Alternatively to install manually, do the following:
@@ -156,6 +156,11 @@ export apprise_urlN="etc"
 # Attach the main script runlog (email body)
 export apprise_attach_runlog="yes"
 
+# To disable the more compact runlog for non-email services
+# set this option to "yes". Not recommended as it may cause
+# formatting issues.
+#export apprise_disable_compact_runlog="no"
+
 # If apprise is installed in a non-standard location
 # specify the path to its binary here. Uncomment if necessary
 #export apprise_binary_path="/path/to/binary/apprise"
@@ -196,7 +201,7 @@ SnapRAID-DAILY: All OK
 Hostname: server.example.org
 Host OS: Debian GNU/Linux 13 (Trixie)
 SnapRAID Version: 12.4
-SnapRAID-DAILY Version: 1.4.3
+SnapRAID-DAILY Version: 1.5.1
 =======================
 Initial Status: OK
 Start Hook: Completed OK
@@ -207,6 +212,17 @@ End Hook: Completed OK
 =======================
 Overall Result: SUCCESS
 ```
+
+Its recommended to leave this functionality on to ensure proper formatted messages
+to services like **Telegram** or **ntfy**, and if the user wants more information
+to use the **apprise_attach_runlog** to attach the full email body to the notification
+as an attachment (see below).
+
+However, note that the above more compact log for any Apprise Urls that DO NOT start with
+**mailto://** or **mailtos://** (non-email services) can be disabled through the use of the
+**apprise_disable_compact_runlog** option. As mentioned before, this is **NOT** recommended as
+it may cause formatting issues. Uncomment and set to "yes" to use, otherwise leave
+commented out or set to "no".
 
 The **apprise_attach_runlog** setting shown above in the config file sample is used to
 attach the default email body as an attachment to the non-email notification services like
