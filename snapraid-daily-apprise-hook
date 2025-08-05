@@ -14,7 +14,7 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.1.5"
+script_version="0.1.6"
 
 # Script Variables
 max_supported_apprise_urls=20
@@ -99,6 +99,18 @@ check_for_requirements() {
   elif [ "${apprise_attach_runlog}" != "yes" ] && [ "${apprise_attach_runlog}" != "no" ]
   then
     echo "ERROR: apprise_attach_runlog value from main config file: ${apprise_attach_runlog} is invalid!"
+    echo "       It should be either \"yes\" or \"no\" - Exiting"
+    exit 1
+  fi
+
+  # Check that the apprise_disable_compact_runlog parameter is defined in snapraid-daily.conf
+  # If not, define it as no here or exit if its value is invalid
+  if [ -z "${apprise_disable_compact_runlog}" ]
+  then
+    apprise_disable_compact_runlog="no"
+  elif [ "${apprise_disable_compact_runlog}" != "yes" ] && [ "${apprise_disable_compact_runlog}" != "no" ]
+  then
+    echo "ERROR: apprise_disable_compact_runlog value from main config file: ${apprise_disable_compact_runlog} is invalid!"
     echo "       It should be either \"yes\" or \"no\" - Exiting"
     exit 1
   fi
@@ -546,7 +558,14 @@ send_notifications() {
     if ! echo "${!apprise_url_to_contact}" | grep -qEw "^mailto|^mailtos"
     then
       local is_email="no"
-      local notification_body="${compact_runlog}"
+      if [ "${apprise_disable_compact_runlog}" == "no" ]
+      then
+        local notification_body="${compact_runlog}"
+      elif [ "${apprise_disable_compact_runlog}" == "yes" ]
+      then
+        local notification_body="${email_body}"
+        echo " * WARNING: Using unformatted email body for non-email service - May Cause formatting issues."
+      fi
 
     # By Default all emails use the non-compact runlog
     else
