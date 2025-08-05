@@ -1,3 +1,17 @@
+snapraid-daily-hooks (0.3.5-1) stable; urgency=medium
+
+  * Added an all inclusive manual entry - snapraid-daily-hooks(1),
+    as a point of reference to each individual manual entry.
+
+  * Added an option to disable the compact runlog (short notification
+    body) for everything other than emails for the Apprise Hook.
+    - Noting that this is not recommended to use as it may cause
+      formatting isuses, but is included for potential edge cases.
+
+  * Updates to Apprise hook manual entry.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Tue, 05 Aug 2025 12:04:09 +0100
+
 snapraid-daily-hooks (0.3.4-2) stable; urgency=medium
 
   * Removed build dependency on dh-exec as it was unused.
