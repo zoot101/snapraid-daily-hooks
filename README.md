@@ -562,7 +562,9 @@ The above commands can be anything that is called from the command line, they ca
 commands using standard installed programs, or can be seperate scripts on their own. Note that they
 should be enclosed in "" in the config file. Example:
 
-* start\_command1="sudo mount /mnt/parity\_disk1")
+```bash
+start_command1="sudo mount /mnt/parity_disk1")
+```
 
 If any special characters are required they should be escaped using **\"\\"**. Example:
 
