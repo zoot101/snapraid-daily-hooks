@@ -3,10 +3,10 @@
 ###################################################
 # SnapRAID-Daily Healthchecks.io Notification Hook
 ###################################################
-# COPYRIGHT (C) Mark Finnan 2025
+# Github Page: https://github.com/zoot101/snapraid-daily-hooks
 ###################################################
 
-script_version="0.1"
+script_version="0.1.1"
 
 # Script Arguments
 # $1 - Email Subject
