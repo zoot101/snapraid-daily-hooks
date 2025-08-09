@@ -223,7 +223,7 @@ and set accordingly to use. Defaults to the output of the command **which appris
 See the sample **SnapRAID-DAILY** config provided here for an example that uses this hook
 script.
 
-* [https://github.com/zoot101/snapraid-daily/blob/main/docs/sample-config/snapraid-daily.conf](https://github.com/zoot101/snapraid-daily/blob/main/docs/sample-config/snapraid-daily.conf)
+* [https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf](https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf)
 
 ## Compact Notification Body
 
@@ -443,7 +443,7 @@ then the later 3 are ignored. **Up to 20 Services are supported**.
 See the sample **SnapRAID-DAILY** config provided here for an example that uses this hook
 script.
 
-* [https://github.com/zoot101/snapraid-daily/blob/main/docs/sample-config/snapraid-daily.conf](https://github.com/zoot101/snapraid-daily/blob/main/docs/sample-config/snapraid-daily.conf)
+* [https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf](https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf)
 
 ## Testing the Service Hook
 
