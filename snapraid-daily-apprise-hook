@@ -3,7 +3,7 @@
 ###################################################
 # SnapRAID-Daily Apprise Notification Hook
 ###################################################
-# COPYRIGHT (C) Mark Finnan 2025
+# Github Page: https://github.com/zoot101/snapraid-daily-hooks
 ###################################################
 # Simple bash script to call apprise to send a
 # notification to a number of user defined services
@@ -14,10 +14,13 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.1.6"
+script_version="0.2.0"
 
 # Script Variables
 max_supported_apprise_urls=20
+
+# Notification Body Character Limit
+character_limit=4096
 
 ###################################################
 # MAIN FUNCTION
@@ -33,11 +36,20 @@ main() {
   echo "# SnapRAID-DAILY: Apprise Hook Version ${script_version}"
   echo "##############################"
   echo " * Apprise Binary Path: ${apprise_binary_path}"
-  if [ "${apprise_attach_runlog}" == "yes" ]
-  then
+  if [ "${apprise_attach_runlog}" == "yes" ]; then
     echo " * Attach Full Runlog: YES"
   else
     echo " * Attach Full Runlog: NO"
+  fi
+  if [ "${apprise_disable_compact_runlog}" == "yes" ];then 
+    echo " * Disable Compact Runlog: YES"
+  else
+    echo " * Disable Compact Runlog: NO"
+  fi
+  if [ "${apprise_verbose_enable}" == "yes" ]; then
+    echo " * Verbose: YES"
+  else
+    echo " * Verbose: NO"
   fi
 
   # Find out how many apprise urls are defined in
@@ -70,10 +82,25 @@ grep_cmd() {
   grep -qw -m 1 "${1}" "${runlog}"
 }
 
+# Apprise Command
+apprise_cmd() {
+  if [ "${apprise_verbose_enable}" == "no" ]
+  then
+    "${apprise_binary_path}" "$@"
+  elif [ "${apprise_verbose_enable}" == "yes" ]
+  then
+    "${apprise_binary_path}" -vv "$@"
+  else
+    echo "ERROR: Invalid apprise_verbose_enable parameter: ${apprise_verbose_enable}"
+    exit 1
+  fi
+}
+
 # Check for Requirements
 check_for_requirements() {
 
   # Check for Apprise - 1st check if a custom binary path is supplied
+  # Otherwise fall back to the output from which, exit if that is empty
   if [ ! -z "${apprise_binary_path}" ]
   then
     if [ ! -x "${apprise_binary_path}" ]
@@ -81,8 +108,6 @@ check_for_requirements() {
       echo "ERROR: Supplied apprise binary path: ${apprise_binary_path} does not exist or is not executable - Exiting"
       exit 1
     fi
-
-  # Otherwise fall back to the output from which, exit if that is empty
   elif [ -z $(which apprise) ]
   then
     echo "ERROR: apprise is not installed - Exiting..."
@@ -114,6 +139,19 @@ check_for_requirements() {
     echo "       It should be either \"yes\" or \"no\" - Exiting"
     exit 1
   fi
+
+  # Check that the apprise_verbose_enable parameter is defined in snapraid-daily.conf
+  # If not, define it as no here or exit if its value is in valid
+  if [ -z "${apprise_verbose_enable}" ]
+  then
+    apprise_verbose_enable="no"
+  elif [ "${apprise_verbose_enable}" != "yes" ] && [ "${apprise_verbose_enable}" != "no" ]
+  then
+    echo "ERROR: apprise_verbose_enable value from main config file: ${apprise_verbose_enable} is invalid!"
+    echo "       It should be either \"yes\" or \"no\" - Exiting"
+    exit 1
+  fi
+  
 
   # Check for the Proper Argument Structure from the main script
   if [ -z "${1}" ]
@@ -179,7 +217,7 @@ check_apprise_urls() {
       if [ -z "${!apprise_url_to_check}" ]
       then
         N_Apprise_Urls=$((i-1))
-        echo " * Found $N_Apprise_Urls Apprise URL(s) defined in config"
+        echo " * Apprise URL(s) : $N_Apprise_Urls"
         echo ""
         break
       fi
@@ -435,6 +473,11 @@ generate_compact_runlog() {
     then
       log "Sync: Completed OK"
 
+      # Get the sync duration and add to condensed log
+      sync_line=$(grep -n "Sync was Successful" "${runlog}" | awk -F ":" '{print $1}') 
+      sync_duration=$(sed -n $((sync_line-1))p "${runlog}" | awk -F ":" '{print $NF}')
+      log " * Time:${sync_duration}"
+
     # Nothing to Sync
     elif grep_cmd "Found nothing to sync"
     then
@@ -489,6 +532,12 @@ generate_compact_runlog() {
     elif grep_cmd "Scrub was successful"
     then
       log "Scrub: Completed OK"
+
+      # Get the sync duration and add to condensed log
+      scrub_line=$(grep -n "Scrub was successful" "${runlog}" | awk -F ":" '{print $1}') 
+      scrub_duration=$(sed -n $((scrub_line-1))p "${runlog}" | awk -F ":" '{print $NF}')
+      log " * Time:${scrub_duration}"
+
     elif grep_cmd "Scrub Log Reports Error(s)"
     then
       log "Scrub: Error(s)"
@@ -511,7 +560,6 @@ generate_compact_runlog() {
   ###################################################
   check_overall_result
 }
-
 
 # Send Notifications
 send_notifications() {
@@ -565,6 +613,14 @@ send_notifications() {
       then
         local notification_body="${email_body}"
         echo " * WARNING: Using unformatted email body for non-email service - May Cause formatting issues."
+
+        # When the Raw Email log is used for non-email services, check the number of
+        # characters in it as some services place limits on the number of characters
+        body_character_number=$(wc -m "${email_body}" | awk '{print $1}')
+        if [ $body_character_number -gt $character_limit ]
+        then
+          echo " * WARNING: Email Body has > $character_limit characters ($body_character_number) - May Cause Issues."
+        fi
       fi
 
     # By Default all emails use the non-compact runlog
@@ -586,7 +642,7 @@ send_notifications() {
     then
       echo " * Sending Email to URL:" $i/$N_Apprise_Urls"..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
+      cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
                                            "${!apprise_url_to_contact}"
 
     # Case 2 - Email URL & Run with Warning/Error (Attachment Present)
@@ -594,7 +650,7 @@ send_notifications() {
     then
       echo " * Sending Email to URL:" $i/$N_Apprise_Urls "with command log..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
+      cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
                                            --attach "${notification_attachment}" \
                                            "${!apprise_url_to_contact}"
 
@@ -603,7 +659,7 @@ send_notifications() {
     then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls"..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
+      cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
                                            "${!apprise_url_to_contact}"
     
     # Case 4 - Non-Email URL, Successful Run & Main Runlog Attached
@@ -611,7 +667,7 @@ send_notifications() {
     then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with runlog..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
+      cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
                                            --attach "${email_body}" \
                                            "${!apprise_url_to_contact}"
 
@@ -620,7 +676,7 @@ send_notifications() {
     then 
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with command log..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
+      cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
                                            --attach "${notification_attachment}" \
                                            "${!apprise_url_to_contact}"
  
@@ -629,7 +685,7 @@ send_notifications() {
     then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with command log and runlog..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
-      cat "${notification_body}" | "${apprise_binary_path}" -t "${notification_title}" \
+      cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
                                            --attach "${email_body}" \
                                            --attach "${notification_attachment}" \
                                            "${!apprise_url_to_contact}"
@@ -642,16 +698,16 @@ send_notifications() {
       echo "   - Problem sending Notification"
       if [ "${big_attachment}" == "yes" ]; then
         echo "   - Possibly the Attachment (SnapRAID Command Log) is too big?"
-      else
-        echo "   - Suggest trying out the following command to debug:"
-        echo "     $ ${apprise_binary_path} -vv -t Test1 -b Test2 ${!apprise_url_to_contact}"
+      fi
+      if [ $body_character_number -gt $character_limit ]; then
+        echo "   - Possibly the Notification Body (Email Body) has too many characters?"
       fi
     fi
 
     # Invoke some wait time to space out notifications
     sleep 2     
   done
-  echo " * Done"
+  echo " * All Done"
   echo ""
 }
 
