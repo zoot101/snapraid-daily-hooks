@@ -3,17 +3,14 @@
 ###################################################
 # SnapRAID-Daily Service Hook
 ###################################################
-# COPYRIGHT (C) Mark Finnan 2025
+# Github Page: https://github.com/zoot101/snapraid-daily-hooks
 ###################################################
 # Simple bash script to stop/start a number of services
 
 # Script Arguments
 # $1 - "start" or "end"
 
-# Only thing left now is to try and integrate sudo
-# to allow running this without root
-
-script_version="0.1"
+script_version="0.1.2"
 
 # Script Variables
 max_supported_services=20
