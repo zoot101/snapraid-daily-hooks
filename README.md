@@ -4,8 +4,8 @@ Collection of hook scripts for **SnapRAID-DAILY**
 https://github.com/zoot101/snapraid-daily
 
 These extend the functionality of **SnapRAID-DAILY** to add additional
-notification methods or to stop a list of services while the main script
-is running and restart them afterwards.
+notification methods, manage services or execute a list of commands at
+the start and end.
 
 # Table of Contents
 
@@ -40,6 +40,7 @@ of **SnapRAID-DAILY**, to stop a list of services while the main script is runni
 and restart them afterwards.
 
 * **snapraid-daily-service-hook**
+* **snapraid-daily-commands-hook**
   
 # Installation and Setup
 
@@ -74,7 +75,7 @@ Then, the install of the **SnapRAID-DAILY-Hooks** package can be done like so:
 ```bash
 # Once again - it's better to use apt so that the dependencies are
 # automatically installed
-sudo apt install ./snapraid-daily-hooks_0.3.5-1_amd64.deb
+sudo apt install ./snapraid-daily-hooks_0.4.0-1_amd64.deb
 ```
 
 Alternatively to install manually, do the following:
@@ -102,10 +103,10 @@ Next ensure all dependencies are installed:
 
 ```bash
 # On Debian based distros
-sudo apt install coreutils snapraid bash jq curl gawk apprise
+sudo apt install coreutils snapraid bash curl gawk apprise
 
 # On Fedora
-sudo dnf install coreutils snapraid bash jq curl gawk apprise
+sudo dnf install coreutils snapraid bash curl gawk apprise
 ```
 
 # SnapRAID-DAILY Apprise Hook
@@ -145,7 +146,7 @@ for emails via **Apprise** here for more information:
 
 * [https://github.com/caronc/apprise/wiki/Notify_email](https://github.com/caronc/apprise/wiki/Notify_email)
 
-To use this hook script with **SnapRAID-DAILY**, put the following in **snapraid-daily.conf**, if already using
+To use this hook script with **SnapRAID-DAILY**, put the following in **snapraid-daily.conf** - if already using
 a notification hook change **notification_hook1** to **notification_hook2** etc.
 
 ```bash
@@ -171,7 +172,7 @@ export apprise_attach_runlog="yes"
 #export apprise_binary_path="/path/to/binary/apprise"
 ```
 
-The "URLs" above should be in the format specifed on the Apprise documentation for example
+The "URLs" above should be in the format specifed on the Apprise documentation for example:
 
 ```bash
 ntfys://ntfy.sh/channel_name # (For ntfy)
@@ -182,18 +183,16 @@ one wants to use Apprise to send notifications to.
 
 **Note that the use of "export" is important!**
 
-They must be specified starting at **1** and going up to **N**. It would be much easier to specify
-an array here, but it isn't possible to export arrays in bash sadly, so it would require a
-seperate config file for the hook script which is messy in the opinion of the author.
+They must be specified starting at **1** and going up to **N**.
 
 Note that numbers should not be skipped. For example if apprise\_url1, apprise\_url2 and apprise\_url3 are
 specified and subsequently apprise\_url5, apprise\_url6 and apprise\_url7 are also specified in the config file,
 then the latter 3 are ignored as apprise\_url4 has not been defined. **Up to 20 URLs are supported**.
 
-The hook script also creates a more compact version of the email log since services like
-**Telegram** or **ntfy** are more suited to shorter messages than standard email.
+The script also creates a more compact version of the email log from the main **SnapRAID-DAILY** script
+since services like **Telegram** or **ntfy** are more suited to shorter messages than standard email (see below section).
 
-Note that if the script is used to send emails via **Apprise**, the standard email log is
+However, if the script is used to send emails via **Apprise**, the standard email log is
 used as the email body, just like calls to **mutt** in the main script. This is done by regarding
 any **Apprise** URLs that start with **mailto://** or **mailtos://** as Emails.
 
@@ -218,10 +217,9 @@ off by default.
 
 **apprise_binary_path** : If **Apprise** is installed at a different location, this can
 be used to override the default location in the users **PATH** variable. Comment out
-and set accordingly to use. Defaults to the output of the command **which apprise** if not used.
+and set accordingly to use. Defaults to the output of the command ``$ which apprise`` if not used.
 
-See the sample **SnapRAID-DAILY** config provided here for an example that uses this hook
-script.
+See the sample **SnapRAID-DAILY** config provided here for an example that uses this hook script.
 
 * [https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf](https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf)
 
@@ -245,7 +243,9 @@ Initial Status: OK
 Start Hook(s): Completed OK
 Touch: Not Needed
 Sync: Completed OK
+ * Time: 0 hours, 10 minutes, 37 seconds
 Scrub: Completed OK
+ * Time: 1 hours, 15 minutes, 33 seconds
 End Hook(s): Completed OK
 =======================
 Overall Result: Success
@@ -254,9 +254,9 @@ Overall Result: Success
 Its recommended to leave this functionality on to ensure proper formatted messages
 to services like **Telegram** or **ntfy**, and if the user wants more information
 to use the **apprise_attach_runlog** parameter to attach the full email body to the notification
-as an attachment.
+as an attachment instead.
 
-However, as mentioned above - note that the above more compact log for any Apprise Urls that DO NOT start with
+However, as mentioned above the above more compact log for any Apprise Urls that DO NOT start with
 **mailto://** or **mailtos://** (non-email services) can be disabled through the use of the
 **apprise_disable_compact_runlog** option. As mentioned before, this is **NOT** recommended as
 it may cause formatting issues.
@@ -268,11 +268,11 @@ error (status/diff/touch/sync/scrub).
 ## Testing the Apprise Hook
 
 As before it's a good idea to test out the hook script on its own before pairing it
-with **SnapRAID-DAILY**. To do that, follow the below procedure, after populating
+with **SnapRAID-DAILY**. To do that, follow the below procedure after populating
 **snapraid-daily.conf** with the required parameters talked about above.
 
 Given the script is heavily dependent on the run log (email body) generated by the
-main script to generate the compact notification body, it's best to use an output from
+main **SnapRAID-DAILY** script to generate the compact notification body, it's best to use an output from
 the main script to test the hook script.
 
 To do that run the main **snapraid-daily** script and copy/paste the email sent into
@@ -282,7 +282,7 @@ a file. Alternatively, one can copy and paste the sample output from here:
 
 Next generate a sample text file with anything in it to masquerade as a command log
 generated by **SnapRAID** in the event the main script exits with an error. Then do the
-below to call the hook script directly just like the parent **snapraid-daily** script
+below to call the hook script directly just like the parent **SnapRAID-DAILY** script
 will do.
 
 ```bash
@@ -466,7 +466,8 @@ snapraid-daily-service-hook end
 
 ## Running as a Non-Root User
 
-Typically root is required to use the **systemctl** command to stop/start services.
+If one is running the main **SnapRAID-DAILY** script as root this section does not apply, as
+typically root is required to use the **systemctl** command to stop/start services.
 
 However, if one does not run the main **SnapRAID-DAILY** script as root, the hook script is also
 written to handle this case through the use of **sudo**.
@@ -513,7 +514,8 @@ starts or finishes (either in success or warning/error). It offers an alternativ
 writing a very simple script to accomplish the same.
 
 A common potential use-case may be to mount the Parity Disk(s) when **SnapRAID-DAILY** starts
-and umount them when **SnapRAID-DAILY** completes.
+and umount them when **SnapRAID-DAILY** completes. Another one may be to run a number of backup
+jobs with rsync at the start.
 
 To use it, specify the following in the main script configuration file (**snapraid-daily.conf**),
 if already using a start/end hook change **start_hook1** to **start_hook2** or **end_hook1**
@@ -564,29 +566,37 @@ should be enclosed in "" in the config file. Example:
 
 If any special characters are required they should be escaped using **\"\\"**. Example:
 
-* start\_command1="for f in /path1/;do rm \\$f;done"
+```bash
+start_command1="for f in /path1/;do rm \$f;done"
+```
 
 If any of the start commands specified end in an error condition, the script will return
 an error to the main **SnapRAID-DAILY** script which will exit and notify the user
 accordingly.
 
 If any of the end commands end in an error condition, the script will continue to the
-end.
+end to be consistent with the main **SnapRAID-DAILY** script.
 
 ## Running Commands that Require Root as a Different User
 
-To accomplish this one can use **sudo** by just specifying the commands in the config
-file like so:
+If one is running the main script as **root** this section does not apply.
 
-* export start\_command1="sudo mount /mnt/parity\_disk1"   
-* export end\_command1="sudo umount /mnt/parity\_disk1"   
+In the event that one is running the main script as a user other than root and wants to use
+this hook to run a number of commands that require root - one can use **sudo** by just specifying
+the commands in the config file like so:
+
+```bash
+export start_command1="sudo mount /mnt/parity_disk1"   
+export end_command1="sudo umount /mnt/parity_disk1"   
+```
 
 The above example will mount a Parity drive upon the start and unmount it after **SnapRAID-DAILY**
 completes. This assumes that no content files are on the parity disk, and also that it is set up
-appropriately in **/etc/fstab**.
+appropriately in **/etc/fstab** (Mounted at /mnt/parity_disk1 in the above example)
 
 Taking the above example - to allow usage of the **mount** command for your user without a password
-create a file in **/etc/sudoers.d** like so:
+create a file in **/etc/sudoers.d** like so. This should also work for any other command that requires
+root.
 
 ```bash
 # As root do
@@ -628,3 +638,8 @@ To use this in your own hook pipe the commands to **tee -a $main_logfile** like 
 echo "Hook Successful" | tee -a $main_logfile
 ```
 
+# Issues
+
+Just like with the main script - bug reports here on Github are welcome - don't hestitate if you find something wrong.
+
+* [https://github.com/zoot101/snapraid-daily-hooks/issues](https://github.com/zoot101/snapraid-daily-hooks/issues)
