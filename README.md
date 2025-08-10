@@ -579,6 +579,11 @@ accordingly.
 If any of the end commands end in an error condition, the script will continue to the
 end to be consistent with the main **SnapRAID-DAILY** script.
 
+See the sample **SnapRAID-DAILY** config provided here for an example that uses this hook
+script.
+
+* [https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf](https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf)
+
 ## Running Commands that Require Root as a Different User
 
 If one is running the main script as **root** this section does not apply.
