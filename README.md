@@ -229,27 +229,11 @@ As mentioned above, this hook script creates a more compact version of the email
 for any **Apprise** Urls that do not start with **mailto://** or **mailtos://** (anything not an email),
 since services like **Telegram** or **ntfy** are more suited to shorter messages than standard email.
 
-Here is a sample notification output that would be sent to services like
-**ntfy** or **Telegram**:
+Here is what a sample notification sent to **Telegram** looks like with the more compact notification body.
 
-```bash
-=======================
-Hostname: server.example.org
-Host OS: Debian GNU/Linux 13 (Trixie)
-SnapRAID Version: 12.4
-SnapRAID-DAILY Version: 1.5.1
-=======================
-Initial Status: OK
-Start Hook(s): Completed OK
-Touch: Not Needed
-Sync: Completed OK
- * Time: 0 hours, 10 minutes, 37 seconds
-Scrub: Completed OK
- * Time: 1 hours, 15 minutes, 33 seconds
-End Hook(s): Completed OK
-=======================
-Overall Result: Success
-```
+<p>
+  <img src="/imgs/telegram_sample.png" height="600">
+</p>
 
 Its recommended to leave this functionality on to ensure proper formatted messages
 to services like **Telegram** or **ntfy**, and if the user wants more information
