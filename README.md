@@ -11,6 +11,8 @@ the start and end.
 
 - [Description](#description)
 - [Installation and Setup](#installation-and-setup)
+  - [Package Installation](#package-installation)
+  - [Manual Installation](#manual-installation)
 - [SnapRAID-DAILY Apprise Hook](#snapraid-daily-apprise-hook)
   - [Config File Options](#config-file-options)
   - [Compact Notification Body](#compact-notification-body)
@@ -49,6 +51,8 @@ derivatives here. If running a Debian based distro, it's recommended to install
 the package rather than installing manually as all the dependencies necessary are
 installed automatically.
 
+## Package Installation
+
 To install the **SnapRAID-DAILY-Hooks** debian package provided here, firstly
 install the package for the main **SnapRAID-DAILY** script by downloading it from
 the release page here:
@@ -78,20 +82,22 @@ Then, the install of the **SnapRAID-DAILY-Hooks** package can be done like so:
 sudo apt install ./snapraid-daily-hooks_0.4.0-1_amd64.deb
 ```
 
-Alternatively to install manually, do the following:
+## Manual Installation
+
+Alternatively to install manually, first download the latest source code archive from the releases page
+
+* [https://github.com/zoot101/snapraid-daily/releases](https://github.com/zoot101/snapraid-daily/releases)
+
+One could clone the repo with **git clone**, but since there may be some fully untested stuff added to the unreleased
+versions of the hook scripts, I recommend sticking with what is on the releases page instead.
+
 
 ```bash
-# (On Debian based distros)
-sudo apt update
-sudo apt install git
+# Extract the Source Archive 
+unzip snapraid-daily-hooks-0.4.0.zip       # For the Zip File
+tar xvf snapraid-daily-hooks-0.4.0.tar.gz  # For the Tar File
 
-# (On Fedora)
-sudo dnf update
-sudo dnf install git-core # (On Fedora)
-
-# Clone the Git repo
-git clone https://github.com/zoot101/snapraid-daily-hooks
-cd snapraid-daily-hooks
+cd snapraid-daily-hooks-0.4.0
 
 # Install the scripts and manual entries manually
 chmod +x snapraid-daily-*
