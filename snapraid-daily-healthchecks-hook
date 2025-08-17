@@ -42,20 +42,17 @@ main() {
 
 # Requirements Check
 check_for_requirements() {
-
-  if [ -z $(which curl) ]; then
+  if ! which curl &>/dev/null; then
     echo "ERROR: curl is not installed/found in PATH - Exiting"
     exit 1
   fi
 
   # Check for an Email Subject and Email Body from Main Script
-  if [ -z "${1}" ]
-  then
+  if [ -z "${1}" ]; then
     echo "ERROR: No Email Subject specifed from main script - Exiting"
     exit 1
   fi
-  if [ ! -f "${2}" ]
-  then
+  if [ ! -f "${2}" ]; then
     echo "ERROR: No Email Body (Runlog) file specified from main script - Exiting"
     exit 1
   fi
@@ -83,11 +80,9 @@ get_snapraid_daily_inputs() {
   # If Both are yes then the master script was called without options
   # Default Run: Sync followed by Scrub
   # Exit if healthchecks_url (overall) not defined
-  if [ "${sync_ran}" == "yes" ] && [ "${scrub_ran}" == "yes" ]
-  then
+  if [ "${sync_ran}" == "yes" ] && [ "${scrub_ran}" == "yes" ]; then
     echo "Main Script Options: Sync & Scrub"
-    if [ -z "${healthchecks_url}" ]
-    then
+    if [ -z "${healthchecks_url}" ]; then
       echo "ERROR: healthchcks_url not defined in snapraid-daily.conf - Exiting"
       exit 1
     else
@@ -98,13 +93,10 @@ get_snapraid_daily_inputs() {
   # Scrub Only Run
   # If the Scrub URL Doesn't exist, fall back to the overall URL, and
   # failing that - exit in error
-  elif [ "${scrub_ran}" == "yes" ]
-  then
+  elif [ "${scrub_ran}" == "yes" ]; then
     echo "Main Script Options: Scrub Only"
-    if [ -z "${healthchecks_scrub_url}" ]
-    then
-      if [ ! -z "${healthchecks_url}" ]
-      then
+    if [ -z "${healthchecks_scrub_url}" ]; then
+      if [ ! -z "${healthchecks_url}" ]; then
         echo " * Using Overall URL: ${healthchecks_url}"
         contact_url="${healthchecks_url}"
       else
@@ -119,13 +111,10 @@ get_snapraid_daily_inputs() {
   # Sync Only Run
   # If the Sync URL Doesn't exist, fall back to the overall URL, and
   # failing that - exit in error
-  elif [ "${sync_ran}" == "yes" ]
-  then
+  elif [ "${sync_ran}" == "yes" ]; then
     echo "Main Script Options: Sync Only"
-    if [ -z "${healthchecks_sync_url}" ]
-    then
-      if [ ! -z "${healthchecks_url}" ]
-      then
+    if [ -z "${healthchecks_sync_url}" ]; then
+      if [ ! -z "${healthchecks_url}" ]; then
         echo " * Using Overall URL: ${healthchecks_url}"
         contact_url="${healthchecks_url}"
       else
@@ -150,8 +139,7 @@ contact_urls() {
 
   # Check for Failure - If an attachment is present that means the main
   # script ended in an Error/Warning - Signal Failure if that is the case
-  if [ ! -z "${3}" ]
-  then
+  if [ ! -z "${3}" ]; then
     # Append /1 to the url to signal failure
     echo " * Result: Main Script ended in Error/Warning"
     contact_url="${contact_url}/1"
@@ -166,8 +154,7 @@ contact_urls() {
   result=$(curl --silent --show-error --retry 3 "${contact_url}")
 
   # Check for Success Code
-  if [ "${result}" == "OK" ]
-  then
+  if [ "${result}" == "OK" ]; then
     echo " --> Response from Server: OK"
   else
     echo " --> Response from Server: Error(s)"
