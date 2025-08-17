@@ -1,3 +1,14 @@
+snapraid-daily-hooks (0.4.2-1) stable; urgency=medium
+
+  * Made a change to the service hook whereby upon restarting services
+    if any errors are encountered, the script will now continue to
+    the end and attempt to restart all services before handing back
+    control to SnapRAID-DAILY.
+
+  * Updated service hook manual entry to add this information.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Sun, 17 Aug 2025 18:15:11 +0100
+
 snapraid-daily-hooks (0.4.1-1) stable; urgency=medium
 
   * For the service hook, added a check if the services are
