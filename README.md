@@ -430,6 +430,19 @@ Note that numbers should not be skipped. For example if service1, service2 and s
 given and subsequently service5, service6 and service7 are specified in the config file,
 then the later 3 are ignored. **Up to 20 Services are supported**.
 
+When the script is called with the "start" argument, which is what **SnapRAID-DAILY** does at the
+start, if any errors are encountered while attempting to stop any one of the services, the script will
+exit immediately and hand control back to **SnapRAID-DAILY** which will exit and sent the user
+an email or call the notification hook(s).
+
+On the other hand, if errors are encountered while attempting to restart any of the services listed in
+the main config file, the script will continue to the end and attempt to restart all services before
+handing back control to **SnapRAID-DAILY**, which in turn will continue to the end and notify
+the user accordingly.
+
+The thinking here is that it is more important to attempt to ***re-start*** all services defined ni
+the config file than attempt to stop all services listed.
+
 See the sample **SnapRAID-DAILY** config provided here for an example that uses this hook
 script.
 
