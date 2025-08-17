@@ -10,7 +10,7 @@
 # Script Arguments
 # $1 - "start" or "end"
 
-script_version="0.1.3"
+script_version="0.1.4"
 
 # Script Variables
 max_supported_services=20
@@ -172,6 +172,7 @@ stop_services() {
 # Start Services (If at least one valid service was found)
 start_services() {
   if [ $N_Services -gt 0 ]; then
+    restart_errors="no"
     for i in $(seq 1 1 $N_Services); do
       # Use reference variables as can't export arrays...
       service_to_start="service"$i
@@ -182,11 +183,15 @@ start_services() {
       # Check Return Code
       if [ $? != 0 ]; then
         log_to_email_time "ERROR starting service $i/$N_Services" "${!service_to_start}"
-        exit 1
+        restart_errors="yes"
       else
         log_to_email_time "Started Service $i/$N_Services:" "${!service_to_start}"
       fi
     done
+    if [ "${restart_errors}" == "yes" ]; then
+      log_to_email_time "Errors restarting services..."
+      exit 1
+    fi
   else
     log_to_email_time "Not Stopping any Services as no valid services found in config file"
   fi
