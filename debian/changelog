@@ -1,3 +1,21 @@
+snapraid-daily-hooks (0.4.1-1) stable; urgency=medium
+
+  * For the service hook, added a check if the services are
+    defined with the ".service" at the end in the main config file.
+    - This is now removed if this is the case.
+    - Made this explicit in the man page for the service hook.
+
+  * Updated sample Telegram/ntyf notification body in Apprise Hook
+    Manpage to include the duration which was added in v0.4.0.
+
+  * Minor refinements to other scripts:
+    - Silence which commands in all hook scripts.
+    - Minor changes to reduce line count
+    - Made error message more helpful in Apprise hook if apprise
+      is not found on the User's $PATH variable.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Sun, 17 Aug 2025 11:39:19 +0100
+
 snapraid-daily-hooks (0.4.0-1) stable; urgency=medium
 
   * Added a simple command hook that executes a list of commands
