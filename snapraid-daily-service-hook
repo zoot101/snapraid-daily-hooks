@@ -20,8 +20,7 @@ max_supported_services=20
 ###################################################
 main (){
   # Stop Services
-  if [ "${1}" == "start" ]
-  then
+  if [ "${1}" == "start" ]; then
     # Check for root, falling back to using sudo
     check_for_root_or_sudo
 
@@ -33,8 +32,7 @@ main (){
     exit 0
 
   # Re-start services
-  elif [ "${1}" == "end" ]
-  then
+  elif [ "${1}" == "end" ]; then
     # Check for root, falling back to using sudo
     check_for_root_or_sudo
 
@@ -46,8 +44,7 @@ main (){
     exit 0
 
   # Exit for an empty argument
-  elif [ -z "${1}" ]
-  then
+  elif [ -z "${1}" ]; then
     echo "ERROR: No Input Argument given"
     echo "USAGE: $ snapraid-daily-service-hook start|end"
     exit 1
@@ -75,8 +72,7 @@ log_to_email_time() {
 check_services() {
   # Check that "service1" is specifed, if print a help message
   # and exit wtih an error code
-  if [ -z "${service1}" ]
-  then
+  if [ -z "${service1}" ]; then
     echo "ERROR: No Services specified - Require the following in /etc/snapraid-daily.conf"
     echo "       export service1=\"smbd\""
     echo "       export service2=\"sonarr\""
@@ -100,8 +96,7 @@ check_services() {
   # Otherwise determine the number of services specified. If 1,2,3,4
   # are specified and 6,7,8 are specified. 6,7,8 are ignored as 5 is skipped
   else
-    for i in $(seq 1 1 $max_supported_services)
-    do
+    for i in $(seq 1 1 $max_supported_services); do
       # Use reference variables - Remove ".service" from end if present
       service_to_check="service"$i
       unit_file=$(echo "${!service_to_check}" | sed 's/.service$//')
@@ -122,27 +117,23 @@ check_services() {
 # Check for Root falling back to sudo
 check_for_root_or_sudo() {
   # If ran as root, use systemctl as normal
-  if [ $UID == 0 ]
-  then
+  if [ $UID == 0 ]; then
     systemctl_cmd() {
       systemctl "$@"
     }
 
   # Non Root User - Fall back to Sudo
-  elif [ $UID != 0 ]
-  then
+  elif [ $UID != 0 ]; then
     # Determine the User Running the Script
     username=$(whoami)
 
     # First check if sudo is installed
-    if [ -z $(which sudo) ]
-    then
+    if ! which sudo &>/dev/null; then
       log_to_email_time "ERROR: Script not ran as root and sudo not installed - exiting"
       exit 1
 
     # Otherwise check if the user running the script is in the sudoers group
-    elif ! $(groups "${username}" | grep -qEw "sudo|sudoers")
-    then
+    elif ! $(groups "${username}" | grep -qEw "sudo|sudoers"); then
       log_to_email_time "ERROR: Script not ran as root and user is not in sudo group - exiting"
       exit 1
 
@@ -166,8 +157,7 @@ stop_services() {
       systemctl_cmd stop "${!service_to_stop}"
     
       # Check Return Code
-      if [ $? != 0 ]
-      then
+      if [ $? != 0 ]; then
         log_to_email_time "ERROR stopping service $i/$N_Services:" "${!service_to_stop}"
         exit 1
       else
@@ -190,8 +180,7 @@ start_services() {
       systemctl_cmd start "${!service_to_start}"
   
       # Check Return Code
-      if [ $? != 0 ]
-      then
+      if [ $? != 0 ]; then
         log_to_email_time "ERROR starting service $i/$N_Services" "${!service_to_start}"
         exit 1
       else
