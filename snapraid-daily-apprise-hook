@@ -14,7 +14,7 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.2.0"
+script_version="0.2.1"
 
 # Script Variables
 max_supported_apprise_urls=20
@@ -84,11 +84,9 @@ grep_cmd() {
 
 # Apprise Command
 apprise_cmd() {
-  if [ "${apprise_verbose_enable}" == "no" ]
-  then
+  if [ "${apprise_verbose_enable}" == "no" ]; then
     "${apprise_binary_path}" "$@"
-  elif [ "${apprise_verbose_enable}" == "yes" ]
-  then
+  elif [ "${apprise_verbose_enable}" == "yes" ]; then
     "${apprise_binary_path}" -vv "$@"
   else
     echo "ERROR: Invalid apprise_verbose_enable parameter: ${apprise_verbose_enable}"
@@ -101,16 +99,13 @@ check_for_requirements() {
 
   # Check for Apprise - 1st check if a custom binary path is supplied
   # Otherwise fall back to the output from which, exit if that is empty
-  if [ ! -z "${apprise_binary_path}" ]
-  then
-    if [ ! -x "${apprise_binary_path}" ]
-    then
+  if [ ! -z "${apprise_binary_path}" ]; then
+    if [ ! -x "${apprise_binary_path}" ]; then
       echo "ERROR: Supplied apprise binary path: ${apprise_binary_path} does not exist or is not executable - Exiting"
       exit 1
     fi
-  elif [ -z $(which apprise) ]
-  then
-    echo "ERROR: apprise is not installed - Exiting..."
+  elif ! which apprise &>/dev/null; then
+    echo "ERROR: apprise is not installed. If it is installed at a non-standard location, use the apprise_binary_path option in the main config - Exiting..."
     exit 1
   else
     apprise_binary_path="$(which apprise)"
@@ -118,11 +113,9 @@ check_for_requirements() {
 
   # Check that the apprise_attach_runlog parameter is defined in snapraid-daily.conf
   # If not, define it as no here or exit if its value is invalid
-  if [ -z "${apprise_attach_runlog}" ]
-  then
+  if [ -z "${apprise_attach_runlog}" ]; then
     apprise_attach_runlog="no"
-  elif [ "${apprise_attach_runlog}" != "yes" ] && [ "${apprise_attach_runlog}" != "no" ]
-  then
+  elif [ "${apprise_attach_runlog}" != "yes" ] && [ "${apprise_attach_runlog}" != "no" ]; then
     echo "ERROR: apprise_attach_runlog value from main config file: ${apprise_attach_runlog} is invalid!"
     echo "       It should be either \"yes\" or \"no\" - Exiting"
     exit 1
@@ -130,11 +123,9 @@ check_for_requirements() {
 
   # Check that the apprise_disable_compact_runlog parameter is defined in snapraid-daily.conf
   # If not, define it as no here or exit if its value is invalid
-  if [ -z "${apprise_disable_compact_runlog}" ]
-  then
+  if [ -z "${apprise_disable_compact_runlog}" ]; then
     apprise_disable_compact_runlog="no"
-  elif [ "${apprise_disable_compact_runlog}" != "yes" ] && [ "${apprise_disable_compact_runlog}" != "no" ]
-  then
+  elif [ "${apprise_disable_compact_runlog}" != "yes" ] && [ "${apprise_disable_compact_runlog}" != "no" ]; then
     echo "ERROR: apprise_disable_compact_runlog value from main config file: ${apprise_disable_compact_runlog} is invalid!"
     echo "       It should be either \"yes\" or \"no\" - Exiting"
     exit 1
@@ -142,11 +133,9 @@ check_for_requirements() {
 
   # Check that the apprise_verbose_enable parameter is defined in snapraid-daily.conf
   # If not, define it as no here or exit if its value is in valid
-  if [ -z "${apprise_verbose_enable}" ]
-  then
+  if [ -z "${apprise_verbose_enable}" ]; then
     apprise_verbose_enable="no"
-  elif [ "${apprise_verbose_enable}" != "yes" ] && [ "${apprise_verbose_enable}" != "no" ]
-  then
+  elif [ "${apprise_verbose_enable}" != "yes" ] && [ "${apprise_verbose_enable}" != "no" ]; then
     echo "ERROR: apprise_verbose_enable value from main config file: ${apprise_verbose_enable} is invalid!"
     echo "       It should be either \"yes\" or \"no\" - Exiting"
     exit 1
@@ -154,23 +143,19 @@ check_for_requirements() {
   
 
   # Check for the Proper Argument Structure from the main script
-  if [ -z "${1}" ]
-  then
+  if [ -z "${1}" ]; then
     echo "ERROR: No Email Subject Defined"
     echo "Usage: snapraid-daily-apprise-hook \"Email Subject\" \"Email Body File\" \"Email Attachment (If Present)\""
     exit 1
-  elif [ -z "${2}" ]
-  then
+  elif [ -z "${2}" ]; then
     echo "ERROR: No Email Body Defined"
     echo "Usage: snapraid-daily-apprise-hook \"Email Subject\" \"Email Body File\" \"Email Attachment (If Present)\""
     exit 1
-  elif [ ! -f "${2}" ]
-  then
+  elif [ ! -f "${2}" ]; then
     echo "ERROR: Email Body: ${2} is not a valid file"
     echo "Usage: snapraid-daily-apprise-hook \"Email Subject\" \"Email Body File\" \"Email Attachment (If Present)\""
     exit 1
-  elif [ ! -z "${3}" ] && [ ! -f "${3}" ]
-  then
+  elif [ ! -z "${3}" ] && [ ! -f "${3}" ]; then
     echo "ERROR: Email Attachment ${3} is not a valid file"
     echo "Usage: snapraid-daily-apprise-hook \"Email Subject\" \"Email Body File\" \"Email Attachment (If Present)\""
     exit 1
@@ -183,8 +168,7 @@ check_apprise_urls() {
 
   # Check that "apprise_url1" is specifed, if print a help message
   # and exit wtih an error code
-  if [ -z "${apprise_url1}" ]
-  then
+  if [ -z "${apprise_url1}" ]; then
     echo "ERROR: No Services specified - Require the following in /etc/snapraid-daily.conf"
     echo "       export apprise_url1=\"ntfy://....\""
     echo "       export apprise_url2=\"ntfys://....\""
@@ -207,15 +191,13 @@ check_apprise_urls() {
   # Otherwise determine the number of apprise_urls specified. If 1,2,3,4
   # are specified and 6,7,8 are specified. 6,7,8 are ignored as 5 is skipped
   else
-    for i in $(seq 1 1 $max_supported_apprise_urls)
-    do
+    for i in $(seq 1 1 $max_supported_apprise_urls); do
       # Use reference variables
       apprise_url_to_check="apprise_url"$i
 
       # Check the apprise_url exists, once one that doesn't exist is found, break
       # out of the loop and set the number found
-      if [ -z "${!apprise_url_to_check}" ]
-      then
+      if [ -z "${!apprise_url_to_check}" ]; then
         N_Apprise_Urls=$((i-1))
         echo " * Apprise URL(s) : $N_Apprise_Urls"
         echo ""
@@ -237,11 +219,9 @@ check_for_end_hook(){
   # is compatible with the multiple and single versions of parent script
   if grep_cmd "End-Hook: YES"
   then
-    if grep_cmd "End Hook completed successfully"
-    then
+    if grep_cmd "End Hook completed successfully"; then
       log "End Hook(s): Completed OK"
-    elif grep_cmd "All End Hooks completed successfully"
-    then
+    elif grep_cmd "All End Hooks completed successfully"; then
       log "End Hook(s): Completed OK"
     else
       log "End Hook(s): Exited with Error(s)"
@@ -255,12 +235,10 @@ check_for_end_hook(){
 # Check for Overall Result (Added in snapraid-daily-1.4.2)
 # (is called multiple times below)
 check_overall_result() {
-  if grep_cmd "Result: SUCCESS"
-  then
+  if grep_cmd "Result: SUCCESS"; then
     log "======================="
     log "Overall Result: Success"
-  elif grep_cmd "Result: WARNING(S)"
-  then
+  elif grep_cmd "Result: WARNING(S)"; then
     log "======================="
     log "Overall Result: Warning(s)"
   fi
@@ -279,8 +257,7 @@ generate_compact_runlog() {
   local attachment="${3}"
 
   # Exit in Error if /tmp is not writable
-  if [ ! -w "/tmp" ]
-  then
+  if [ ! -w "/tmp" ]; then
     echo "ERROR: /tmp is not writable - Exiting"
     exit 1
   else
@@ -309,31 +286,25 @@ generate_compact_runlog() {
   # Initial Status Check
   ###################################################
   # This is always ran. All Scenarios need to be considered here
-  if grep_cmd "No Issues Found in Initial Check"
-  then
+  if grep_cmd "No Issues Found in Initial Check"; then
     log "Initial Status: OK"
-  elif grep_cmd "SnapRAID is already Use - Exiting"
-  then
+  elif grep_cmd "SnapRAID is already Use - Exiting"; then
     log "Initial Status: SnapRAID already in Use!"
     check_overall_result
     return 1
-  elif grep_cmd "Unexpected Status Output"
-  then
+  elif grep_cmd "Unexpected Status Output"; then
     log "Initial Status: Warning(s)"
     check_overall_result
     return 1
-  elif grep_cmd "Found error(s) - Exiting"
-  then
+  elif grep_cmd "Found error(s) - Exiting"; then
     log "Initial Status: Error(s)"
     check_overall_result
     return 1
-  elif grep_cmd "Rehash In-Progress/Required"
-  then
+  elif grep_cmd "Rehash In-Progress/Required"; then
     log "Initial Status: Warning(s)"
     check_overall_result
     return 1
-  elif grep_cmd "Sync Already in Progress"
-  then
+  elif grep_cmd "Sync Already in Progress"; then
     log "Initial Status: Sync in Progress - Continuing"
   else
     log "Initial Status: Warning(s)"
@@ -346,13 +317,10 @@ generate_compact_runlog() {
   # If ran, check what the result was. If the start hook ends in an error,
   # the main script exits, so the function exits here. Setup below is
   # compatible with single and multiple versions of main script
-  if grep_cmd "Start-Hook: YES"
-  then
-    if grep_cmd "Start Hook completed successfully"
-    then
+  if grep_cmd "Start-Hook: YES"; then
+    if grep_cmd "Start Hook completed successfully"; then
       log "Start Hook(s): Completed OK"
-    elif grep_cmd "All Start Hooks completed successfully"
-    then
+    elif grep_cmd "All Start Hooks completed successfully"; then
       log "Start Hook(s): Completed OK"
     else
       log "Start Hook(s): Exited with Error(s)"
@@ -369,12 +337,10 @@ generate_compact_runlog() {
   ###################################################
   # If ran, check what outcome was. The main script exits with an error,
   # so the function exits here also in that case
-  if grep_cmd "Touch Not Needed"
-  then
+  if grep_cmd "Touch Not Needed"; then
     log "Touch: Not Needed"
   else
-    if grep_cmd "Touch Completed"
-    then
+    if grep_cmd "Touch Completed"; then
       log "Touch: Completed OK"
     else
       log "Touch: Warning(s)"
@@ -392,8 +358,7 @@ generate_compact_runlog() {
   # Thresholds exceeded, Thresholds overriden or an error condition
 
   # Check for Thresholds Exceeded
-  if grep_cmd "One or more Thresholds Exceeded"
-  then
+  if grep_cmd "One or more Thresholds Exceeded"; then
     log "Difference Check: Threshold(s) Exceeded"
     log "$(grep -w -m 1 "Deleted:" "${runlog}")"
     log "$(grep -w -m 1 "Moved:" "${runlog}")"
@@ -406,27 +371,22 @@ generate_compact_runlog() {
     return 1
 
   # Check for Overriden Thresholds 
-  elif grep_cmd "Overriding Deletion/Moved/Updated Thresholds"
-  then
+  elif grep_cmd "Overriding Deletion/Moved/Updated Thresholds"; then
     log "Difference Check: Overriden"
 
   # Check if Changes were Detected
-  elif grep_cmd "Changes Detected"
-  then
+  elif grep_cmd "Changes Detected";then
     log "Difference Check: Changes Found"
 
   # Check for the case where no changes are detected
-  elif grep_cmd "No Changes - Nothing to Sync"
-  then
+  elif grep_cmd "No Changes - Nothing to Sync"; then
     log "Difference Check: No Changes"
 
     # If Sync Only was ran - check for then end hook and
     # stop here but only stop if a sync isn't already in progress
     # Just like what the main SnapRAID-DAILY script does...
-    if grep_cmd "Run-Sync: YES" && grep_cmd "Run-Scrub: NO"
-    then
-      if grep_cmd "However a sync is still in progress - Continuing"
-      then
+    if grep_cmd "Run-Sync: YES" && grep_cmd "Run-Scrub: NO"; then
+      if grep_cmd "However a sync is still in progress - Continuing"; then
         log "However, Sync In Progress -> Continuing"
       else
         log "Sync: Not Needed"
@@ -441,15 +401,13 @@ generate_compact_runlog() {
     fi
 
   # Error Conditions
-  elif grep_cmd "Problem with Diff Command - Stopping"
-  then
+  elif grep_cmd "Problem with Diff Command - Stopping"; then
     log "Difference Check: Warning(s)"
     log "Suggest Checking Logs!"
     check_for_end_hook
     check_overall_result
     return 1
-  elif grep_cmd "Unexpected Exit Status for Diff - Stopping"
-  then
+  elif grep_cmd "Unexpected Exit Status for Diff - Stopping"; then
     log "Difference Check: Warning(s)"
     log "Suggest Checking Logs!"
     check_for_end_hook
@@ -465,12 +423,9 @@ generate_compact_runlog() {
   # Sync Operation
   ###################################################
   # Check if the Sync was ran
-  if grep_cmd "Run-Sync: YES"
-  then
-    # Need to account for all scenarios below
+  if grep_cmd "Run-Sync: YES"; then
     # Sync Success
-    if grep_cmd "Sync was Successful"
-    then
+    if grep_cmd "Sync was Successful"; then
       log "Sync: Completed OK"
 
       # Get the sync duration and add to condensed log
@@ -479,21 +434,18 @@ generate_compact_runlog() {
       log " * Time:${sync_duration}"
 
     # Nothing to Sync
-    elif grep_cmd "Found nothing to sync"
-    then
+    elif grep_cmd "Found nothing to sync"; then
       log "Sync: Nothing to Sync"
 
     # Files Modified during Sync
-    elif grep_cmd "Sync - File(s) Modified During Sync"
-    then
+    elif grep_cmd "Sync - File(s) Modified During Sync"; then
       log "Sync: File(s) modified during Sync"
       check_for_end_hook
       check_overall_result
       return 1
 
     # Unexpected Output (Problem with the Command?)
-    elif grep_cmd "Unexpected Output from Sync"
-    then
+    elif grep_cmd "Unexpected Output from Sync"; then
       log "Sync: Warning(s)"
       log "Suggest Checking Logs!"
       check_for_end_hook
@@ -501,8 +453,7 @@ generate_compact_runlog() {
       return 1
 
     # Errors (Data, File or I/O Errors detected)
-    elif grep_cmd "Sync Log Reports Error(s)"
-    then
+    elif grep_cmd "Sync Log Reports Error(s)"; then
       log "Sync: Error(s)"
       log "Suggest Checking Logs!"
       check_for_end_hook
@@ -517,29 +468,21 @@ generate_compact_runlog() {
   # Scrub Operation
   ###################################################
   # Check if the Scrub was ran
-  if grep_cmd "Run-Scrub: YES"
-  then
+  if grep_cmd "Run-Scrub: YES"; then
     # Possible Scenarios are Completed OK, Nothing to Scrub
     # or Sync Required, everything else is printed as an error
     # Can get away with not checking everything here as the
     # script moves on to the end hook regardless
-    if grep_cmd "Array not up-to-date - Sync Required"
-    then
+    if grep_cmd "Array not up-to-date - Sync Required"; then
       log "Scrub: Sync Required"
-    elif grep_cmd "Found Nothing to Scrub"
-    then
+    elif grep_cmd "Found Nothing to Scrub"; then
       log "Scrub: Nothing to Scrub"
-    elif grep_cmd "Scrub was successful"
-    then
+    elif grep_cmd "Scrub was successful"; then
       log "Scrub: Completed OK"
-
-      # Get the sync duration and add to condensed log
       scrub_line=$(grep -n "Scrub was successful" "${runlog}" | awk -F ":" '{print $1}') 
       scrub_duration=$(sed -n $((scrub_line-1))p "${runlog}" | awk -F ":" '{print $NF}')
       log " * Time:${scrub_duration}"
-
-    elif grep_cmd "Scrub Log Reports Error(s)"
-    then
+    elif grep_cmd "Scrub Log Reports Error(s)"; then
       log "Scrub: Error(s)"
       log "Suggest Checking Logs!"
     else
@@ -568,22 +511,19 @@ send_notifications() {
   local notification_attachment="${3}"
 
   # If the option to attach the main run log is enabled insert a note to the body
-  if [ ! -z "${apprise_attach_runlog}" ] && [ "${apprise_attach_runlog}" == "yes" ]
-  then
+  if [ ! -z "${apprise_attach_runlog}" ] && [ "${apprise_attach_runlog}" == "yes" ]; then
     log " * Run log is attached..."
   fi
 
   # If an Email Attachment was generated by the main script, insert a note to the body
-  if [ ! -z "${notification_attachment}" ]
-  then
+  if [ ! -z "${notification_attachment}" ]; then
     log " * Command with error log is attached..."
   fi
 
   # Do a check on the file size of the attachment (if present) and print a warning if
   # it is greater than 15MB (may have to re-visit this number) as this
   # can cause problems with certain services (ntfy is an example)
-  if [ ! -z "${notification_attachment}" ] && [ -f "${notification_attachment}" ]
-  then
+  if [ ! -z "${notification_attachment}" ] && [ -f "${notification_attachment}" ]; then
     attachment_size=$(du "${notification_attachment}" | awk '{print $1}')
     if [ $attachment_size -ge 15000 ]; then
       echo " * WARNING: SnapRAID Command Log > 15MB, this file size may be too big for certain services"
@@ -596,29 +536,24 @@ send_notifications() {
   fi
 
   # Step through all Apprise URLs defined in Config
-  for i in $(seq 1 1 $N_Apprise_Urls)
-  do
+  for i in $(seq 1 1 $N_Apprise_Urls); do
     # Use Reference Variables as can't export arrays...
     apprise_url_to_contact="apprise_url"$i
 
     # Check for the presence of "mailto" or "mailtos" at the start in the
     # Apprise URL
-    if ! echo "${!apprise_url_to_contact}" | grep -qEw "^mailto|^mailtos"
-    then
+    if ! echo "${!apprise_url_to_contact}" | grep -qEw "^mailto|^mailtos"; then
       local is_email="no"
-      if [ "${apprise_disable_compact_runlog}" == "no" ]
-      then
+      if [ "${apprise_disable_compact_runlog}" == "no" ]; then
         local notification_body="${compact_runlog}"
-      elif [ "${apprise_disable_compact_runlog}" == "yes" ]
-      then
+      elif [ "${apprise_disable_compact_runlog}" == "yes" ]; then
         local notification_body="${email_body}"
         echo " * WARNING: Using unformatted email body for non-email service - May Cause formatting issues."
 
         # When the Raw Email log is used for non-email services, check the number of
         # characters in it as some services place limits on the number of characters
         body_character_number=$(wc -m "${email_body}" | awk '{print $1}')
-        if [ $body_character_number -gt $character_limit ]
-        then
+        if [ $body_character_number -gt $character_limit ]; then
           echo " * WARNING: Email Body has > $character_limit characters ($body_character_number) - May Cause Issues."
         fi
       fi
@@ -638,16 +573,14 @@ send_notifications() {
     # if present...
 
     # Case 1 - Email URL & Successful Run
-    if [ "${is_email}" == "yes" ] && [ -z "${notification_attachment}" ]
-    then
+    if [ "${is_email}" == "yes" ] && [ -z "${notification_attachment}" ]; then
       echo " * Sending Email to URL:" $i/$N_Apprise_Urls"..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
       cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
                                            "${!apprise_url_to_contact}"
 
     # Case 2 - Email URL & Run with Warning/Error (Attachment Present)
-    elif [ "${is_email}" == "yes" ] && [ ! -z "${notification_attachment}" ]
-    then
+    elif [ "${is_email}" == "yes" ] && [ ! -z "${notification_attachment}" ]; then
       echo " * Sending Email to URL:" $i/$N_Apprise_Urls "with command log..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
       cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
@@ -655,16 +588,14 @@ send_notifications() {
                                            "${!apprise_url_to_contact}"
 
     # Case 3 - Non-Email URL, Successful Run & Main Runlog NOT Attached
-    elif [ -z "${notification_attachment}" ] && [ "${apprise_attach_runlog}" == "no" ]
-    then
+    elif [ -z "${notification_attachment}" ] && [ "${apprise_attach_runlog}" == "no" ]; then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls"..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
       cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
                                            "${!apprise_url_to_contact}"
     
     # Case 4 - Non-Email URL, Successful Run & Main Runlog Attached
-    elif [ -z "${notification_attachment}" ] && [ "${apprise_attach_runlog}" == "yes" ]
-    then
+    elif [ -z "${notification_attachment}" ] && [ "${apprise_attach_runlog}" == "yes" ]; then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with runlog..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
       cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
@@ -672,8 +603,7 @@ send_notifications() {
                                            "${!apprise_url_to_contact}"
 
     # Case 5 - Non-Email URL, Run with Warning/Error & Main Runlog NOT Attached
-    elif [ ! -z "${notification_attachment}" ] && [ "${apprise_attach_runlog}" == "no" ]
-    then 
+    elif [ ! -z "${notification_attachment}" ] && [ "${apprise_attach_runlog}" == "no" ]; then 
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with command log..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
       cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
@@ -681,8 +611,7 @@ send_notifications() {
                                            "${!apprise_url_to_contact}"
  
     # Case 6 - Non-Email URL, Run with Warning/Error & Main Runlog Attached (If not Email)
-    elif [ ! -z "${notification_attachment}" ] && [ "${apprise_attach_runlog}" == "yes" ]
-    then
+    elif [ ! -z "${notification_attachment}" ] && [ "${apprise_attach_runlog}" == "yes" ]; then
       echo " * Sending Notification to URL:" $i/$N_Apprise_Urls "with command log and runlog..."
       echo "   - Apprise URL: ${!apprise_url_to_contact}"
       cat "${notification_body}" | apprise_cmd -t "${notification_title}" \
