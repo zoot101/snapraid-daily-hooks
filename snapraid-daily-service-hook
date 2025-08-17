@@ -193,7 +193,7 @@ start_services() {
       exit 1
     fi
   else
-    log_to_email_time "Not Stopping any Services as no valid services found in config file"
+    log_to_email_time "Not Re-Starting any Services as no valid services found in config file"
   fi
 }
 
