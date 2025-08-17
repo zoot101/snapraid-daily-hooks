@@ -10,7 +10,7 @@
 # Script Arguments
 # $1 - "start" or "end"
 
-script_version="0.1.2"
+script_version="0.1.3"
 
 # Script Variables
 max_supported_services=20
@@ -102,13 +102,14 @@ check_services() {
   else
     for i in $(seq 1 1 $max_supported_services)
     do
-      # Use reference variables
+      # Use reference variables - Remove ".service" from end if present
       service_to_check="service"$i
+      unit_file=$(echo "${!service_to_check}" | sed 's/.service$//')
 
       # Check the service exists, once one that doesn't exist is found, break
       # out of the loop and set the number found
-      if [ ! -f "/etc/systemd/system/${!service_to_check}.service" ] && \
-         [ ! -f "/lib/systemd/system/${!service_to_check}.service" ]
+      if [ ! -f "/etc/systemd/system/${unit_file}.service" ] && \
+         [ ! -f "/lib/systemd/system/${unit_file}.service" ]
       then
         N_Services=$((i-1))
         log_to_email_time "$N_Services Service(s) defined in config"
@@ -154,46 +155,52 @@ check_for_root_or_sudo() {
   fi
 }
 
-# Stop Services
+# Stop Services (If at least one valid service was found)
 stop_services() {
-  for i in $(seq 1 1 $N_Services)
-  do
-    # Use Reference Variables as can't export arrays...
-    service_to_stop="service"$i
-
-    # Stop Service Using systemctl command above
-    systemctl_cmd stop "${!service_to_stop}"
+  if [ $N_Services -gt 0 ]; then
+    for i in $(seq 1 1 $N_Services); do
+      # Use Reference Variables as can't export arrays...
+      service_to_stop="service"$i
   
-    # Check Return Code
-    if [ $? != 0 ]
-    then
-      log_to_email_time "ERROR stopping service $i/$N_Services:" "${!service_to_stop}"
-      exit 1
-    else
-      log_to_email_time "Stopped Service $i/$N_Services:" "${!service_to_stop}"
-    fi
-  done
+      # Stop Service Using systemctl command above
+      systemctl_cmd stop "${!service_to_stop}"
+    
+      # Check Return Code
+      if [ $? != 0 ]
+      then
+        log_to_email_time "ERROR stopping service $i/$N_Services:" "${!service_to_stop}"
+        exit 1
+      else
+        log_to_email_time "Stopped Service $i/$N_Services:" "${!service_to_stop}"
+      fi
+    done
+  else
+    log_to_email_time "Not Stopping any Services as no valid services found in config file"
+  fi
 }
 
-# Start Services
+# Start Services (If at least one valid service was found)
 start_services() {
-  for i in $(seq 1 1 $N_Services)
-  do
-    # Use reference variables as can't export arrays...
-    service_to_start="service"$i
-
-    # Start Service Using systemctl
-    systemctl_cmd start "${!service_to_start}"
-
-    # Check Return Code
-    if [ $? != 0 ]
-    then
-      log_to_email_time "ERROR starting service $i/$N_Services" "${!service_to_start}"
-      exit 1
-    else
-      log_to_email_time "Started Service $i/$N_Services:" "${!service_to_start}"
-    fi
-  done
+  if [ $N_Services -gt 0 ]; then
+    for i in $(seq 1 1 $N_Services); do
+      # Use reference variables as can't export arrays...
+      service_to_start="service"$i
+  
+      # Start Service Using systemctl
+      systemctl_cmd start "${!service_to_start}"
+  
+      # Check Return Code
+      if [ $? != 0 ]
+      then
+        log_to_email_time "ERROR starting service $i/$N_Services" "${!service_to_start}"
+        exit 1
+      else
+        log_to_email_time "Started Service $i/$N_Services:" "${!service_to_start}"
+      fi
+    done
+  else
+    log_to_email_time "Not Stopping any Services as no valid services found in config file"
+  fi
 }
 
 ###################################################
