@@ -11,7 +11,7 @@
 # Script Arguments
 # $1 - "start" or "end"
 
-script_version="0.1"
+script_version="0.1.1"
 
 # Script Variables
 max_supported_commands=5
