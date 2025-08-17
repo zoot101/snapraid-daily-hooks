@@ -22,8 +22,7 @@ max_supported_commands=5
 main (){
 
   # Execute Start Commands
-  if [ "${1}" == "start" ]
-  then
+  if [ "${1}" == "start" ]; then
     # Get Number of Start Commands
     get_commands_number "start"
 
@@ -31,8 +30,7 @@ main (){
     execute_commands "start"
 
   # Execute Stop Commands
-  elif [ "${1}" == "end" ]
-  then
+  elif [ "${1}" == "end" ]; then
     # Get Number of End Commands
     get_commands_number "end"
 
@@ -40,8 +38,7 @@ main (){
     execute_commands "end"
 
   # Exit for an empty argument
-  elif [ -z "${1}" ]
-  then
+  elif [ -z "${1}" ]; then
     echo "ERROR: No Input Argument given"
     echo "USAGE: $ snapraid-daily-command-hook start|end"
     exit 1
@@ -101,16 +98,12 @@ get_commands_number() {
 
 # Loop through Each of the Commands and Execute them one-by-one
 execute_commands() {
-  for i in $(seq 1 1 $N_Commands)
-  do
+  for i in $(seq 1 1 $N_Commands); do
     cmd="${1}_command"$i
-    if [ ! -z "${!cmd}" ]
-    then
-      if [ "${1}" == "start" ]
-      then
+    if [ ! -z "${!cmd}" ]; then
+      if [ "${1}" == "start" ]; then
         log_to_email_time "Executing Start Command $i/$N_Commands : ${!cmd} ..."
-      elif [ "${1}" == "end" ]
-      then
+      elif [ "${1}" == "end" ]; then
         log_to_email_time "Executing End Command $i/$N_Commands : ${!cmd} ..."
       fi
 
@@ -118,21 +111,17 @@ execute_commands() {
       bash -c "${!cmd}"
 
       # Check Error Code - Exit for the Start Commands, Continue to the end for the end commands
-      if [ $? != 0 ]
-      then
-        if [ "${1}" == "start" ]
-        then
+      if [ $? != 0 ]; then
+        if [ "${1}" == "start" ]; then
           log_to_email_time "ERROR: Command $i/$N_Commands : ${!cmd} appears not to have succeeded - Exiting"
           exit 1
         else
           log_to_email_time "WARNING: Command $i/$N_Commands : ${!cmd} appears not to have succeeded - Continuing"
         fi
       else
-        if [ "${1}" == "start" ]
-        then
+        if [ "${1}" == "start" ]; then
           log_to_email_time "Start Command $i/$N_Commands successful"
-        elif [ "${1}" == "end" ]
-        then
+        elif [ "${1}" == "end" ]; then
           log_to_email_time "End Command $i/$N_Commands successful"
         fi
       fi
