@@ -101,10 +101,10 @@ check_services() {
       service_to_check="service"$i
       unit_file=$(echo "${!service_to_check}" | sed 's/.service$//')
 
-      # Check the service exists, once one that doesn't exist is found, break
-      # out of the loop and set the number found
+      # Check the service exists or not
       if [ ! -f "/etc/systemd/system/${unit_file}.service" ] && \
-         [ ! -f "/lib/systemd/system/${unit_file}.service" ]
+         [ ! -f "/lib/systemd/system/${unit_file}.service" ] && \
+         [ ! -f "/usr/lib/systemd/system/${unit_file}.service" ]
       then
         N_Services=$((i-1))
         log_to_email_time "$N_Services Service(s) defined in config"
