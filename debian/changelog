@@ -1,3 +1,10 @@
+snapraid-daily-hooks (0.5.0-1) stable; urgency=medium
+
+  * Added a check on /usr/lib/systemd/system for the unit file in
+    the service hook.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  TBD, XX TBD 2025 XX:XX:XX +0100
+
 snapraid-daily-hooks (0.4.2-1) stable; urgency=medium
 
   * Made a change to the service hook whereby upon restarting services
