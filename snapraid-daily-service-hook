@@ -10,7 +10,7 @@
 # Script Arguments
 # $1 - "start" or "end"
 
-script_version="0.1.4"
+script_version="0.1.5"
 
 # Script Variables
 max_supported_services=20
