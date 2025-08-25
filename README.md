@@ -26,6 +26,7 @@ the start and end.
   - [Running Commands that Require Root as a Different User](#running-commands-that-require-root-as-a-different-user)
   - [Testing the Commands Hook](#testing-the-commands-hook)
 - [Some Notes on Creating Hook Scripts](#some-notes-on-creating-hook-scripts)
+- [Issues](#issues)
 
 # Description
 
@@ -653,3 +654,4 @@ echo "Hook Successful" | tee -a $main_logfile
 Just like with the main script - bug reports here on Github are welcome - don't hestitate if you find something wrong.
 
 * [https://github.com/zoot101/snapraid-daily-hooks/issues](https://github.com/zoot101/snapraid-daily-hooks/issues)
+
