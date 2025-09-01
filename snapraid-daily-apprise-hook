@@ -14,7 +14,7 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.2.1"
+script_version="0.2.2"
 
 # Script Variables
 max_supported_apprise_urls=20
@@ -271,11 +271,13 @@ generate_compact_runlog() {
   snapraid_daily_version=$(grep -w "SnapRAID-DAILY Version:" "${runlog}" | awk '{print $NF}')
   system_hostname=$(hostname --fqdn) &> "/dev/null"
   os_name=$(grep -w "^PRETTY_NAME" "/etc/os-release" | sed 's/PRETTY_NAME="//;s/"$//') &> "/dev/null"  
+  update_status=$(grep -w "^# Update Available" "${runlog}" | sed 's/^# //') &> "/dev/null"
   log "======================="
   if [ ! -z "${system_hostname}" ]; then log "Hostname:" "${system_hostname}";fi
   if [ ! -z "${os_name}" ]; then log "Host OS:" "${os_name}"; fi
   if [ ! -z "${snapraid_version}" ]; then log "SnapRAID Version:" "${snapraid_version}"; fi
   if [ ! -z "${snapraid_daily_version}" ]; then log "SnapRAID-DAILY Version:" "${snapraid_daily_version}";fi
+  if [ ! -z "${update_status}" ]; then log "Note: Update Available on Github"; fi
   log "======================="
 
   # Check the main email body (runlog) for what was ran in
