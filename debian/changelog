@@ -1,9 +1,14 @@
-snapraid-daily-hooks (0.5.0-1) stable; urgency=medium
+snapraid-daily-hooks (0.4.3-1) stable; urgency=medium
 
   * Added a check on /usr/lib/systemd/system for the unit file in
     the service hook.
 
- -- Mark Finnan <mfinnan101@gmail.com>  TBD, XX TBD 2025 XX:XX:XX +0100
+  * Added the output of the Update check from the main script since
+    Version 1.5.3 to the compact log. Now notifications sent to
+    services like Telegram or ntfy will notify the user if an update
+    is available on the Github Page.
+
+ -- Mark Finnan <mfinnan101@gmail.com>  Mon, 01 Sep 2025 11:52:21 +0100
 
 snapraid-daily-hooks (0.4.2-1) stable; urgency=medium
 
