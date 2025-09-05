@@ -1,7 +1,8 @@
 # SnapRAID-DAILY-Hooks
 
 Collection of hook scripts for **SnapRAID-DAILY**   
-https://github.com/zoot101/snapraid-daily
+
+* [https://github.com/zoot101/snapraid-daily](https://github.com/zoot101/snapraid-daily)
 
 These extend the functionality of **SnapRAID-DAILY** to add additional
 notification methods, manage services or execute a list of commands at
