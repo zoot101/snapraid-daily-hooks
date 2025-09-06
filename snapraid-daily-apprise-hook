@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 ###################################################
-# SnapRAID-Daily Apprise Notification Hook
+# SnapRAID-DAILY Apprise Notification Hook
 ###################################################
 # Github Page: https://github.com/zoot101/snapraid-daily-hooks
 ###################################################
-# Simple bash script to call apprise to send a
+# Simple bash script to call Apprise to send a
 # notification to a number of user defined services
 
 # Script Arguments
@@ -14,12 +14,10 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.2.2"
+script_version="0.2.3"
 
 # Script Variables
 max_supported_apprise_urls=20
-
-# Notification Body Character Limit
 character_limit=4096
 
 ###################################################
@@ -58,8 +56,6 @@ main() {
 
   # Generate a compact version of the email body
   # for use with services like ntfy/telegram
-  # If apprise is used to send emails this log
-  # is not used
   generate_compact_runlog "$@"
 
   # Send Notifications
@@ -359,12 +355,19 @@ generate_compact_runlog() {
   # This is always ran. Possible Scenarios are: Changes Detected, No Changes,
   # Thresholds exceeded, Thresholds overriden or an error condition
 
+  # Get the Number of Each Changes 
+  N_added=$(grep -w -m 1 "Added:" "${runlog}" | awk '{print $NF}')
+  N_removed=$(grep -w -m 1 "Removed:" "${runlog}" | awk '{print $NF}')
+  N_updated=$(grep -w -m 1 "Updated:" "${runlog}" | awk '{print $NF}')
+  N_moved=$(grep -w -m 1 "Moved:" "${runlog}" | awk '{print $NF}')
+  N_copied=$(grep -w -m 1 "Copied:" "${runlog}" | awk '{print $NF}')
+  N_restored=$(grep -w -m 1 "Restored:" "${runlog}" | awk '{print $NF}')
+
   # Check for Thresholds Exceeded
   if grep_cmd "One or more Thresholds Exceeded"; then
     log "Difference Check: Threshold(s) Exceeded"
-    log "$(grep -w -m 1 "Deleted:" "${runlog}")"
-    log "$(grep -w -m 1 "Moved:" "${runlog}")"
-    log "$(grep -w -m 1 "Updated:" "${runlog}")"
+    log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+    log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
     log "$(grep -w -m 1 "Deletion Threshold:" "${runlog}")"
     log "$(grep -w -m 1 "Moved Threshold:" "${runlog}")"
     log "$(grep -w -m 1 "Updated Threshold:" "${runlog}")"
@@ -375,10 +378,14 @@ generate_compact_runlog() {
   # Check for Overriden Thresholds 
   elif grep_cmd "Overriding Deletion/Moved/Updated Thresholds"; then
     log "Difference Check: Overriden"
+    log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+    log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
 
   # Check if Changes were Detected
   elif grep_cmd "Changes Detected";then
     log "Difference Check: Changes Found"
+    log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+    log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
 
   # Check for the case where no changes are detected
   elif grep_cmd "No Changes - Nothing to Sync"; then
