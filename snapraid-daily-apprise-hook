@@ -519,6 +519,9 @@ send_notifications() {
   local email_body="${2}"
   local notification_attachment="${3}"
 
+  # Get the number of Characters in the Email Body
+  body_character_number=$(wc -m "${email_body}" | awk '{print $1}')
+
   # If the option to attach the main run log is enabled insert a note to the body
   if [ ! -z "${apprise_attach_runlog}" ] && [ "${apprise_attach_runlog}" == "yes" ]; then
     log " * Run log is attached..."
@@ -561,7 +564,6 @@ send_notifications() {
 
         # When the Raw Email log is used for non-email services, check the number of
         # characters in it as some services place limits on the number of characters
-        body_character_number=$(wc -m "${email_body}" | awk '{print $1}')
         if [ $body_character_number -gt $character_limit ]; then
           echo " * WARNING: Email Body has > $character_limit characters ($body_character_number) - May Cause Issues."
         fi
