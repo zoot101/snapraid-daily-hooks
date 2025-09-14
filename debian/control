@@ -15,6 +15,7 @@ Depends:
  snapraid-daily (>=1.4.0),
  bash (>=5.0),
  curl (>=8.0),
+ jq (>=1.7.0),
  apprise (>=1.9.0),
  gawk (>=5.0),
  ${misc:Depends},
