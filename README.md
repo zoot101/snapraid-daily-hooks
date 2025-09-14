@@ -144,9 +144,9 @@ for the **Apprise** type URL Required.
 mailtos://server.example:password@gmail.com?to=email-to-send-notifications-to@example.org&from=server.example.org
 ```
 
-While the author recommends sticking with **mutt** in the default script for standard email notifications, and 
-using **Apprise** for everything else that isn't email, the above works fine to essentially do the
-same thing **mutt** does in the main script.
+While the author recommends sticking with **mutt** in the default script for standard email notifications (paritcularly
+if you want to use its Oauth2 capability), and using **Apprise** for everything else that isn't email, the above works
+fine to essentially do the same thing **mutt** does in the main script.
 
 See the documentation for emails via **Apprise** here for more information:
 
