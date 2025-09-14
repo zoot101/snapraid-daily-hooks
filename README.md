@@ -1,8 +1,7 @@
 # SnapRAID-DAILY-Hooks
 
 Collection of hook scripts for **SnapRAID-DAILY**   
-
-* [https://github.com/zoot101/snapraid-daily](https://github.com/zoot101/snapraid-daily)
+https://github.com/zoot101/snapraid-daily
 
 These extend the functionality of **SnapRAID-DAILY** to add additional
 notification methods, manage services or execute a list of commands at
@@ -136,21 +135,20 @@ In that page there is a table provided with steps on how to enable the various d
 notification services with **Apprise**, it is suggested to go through it as the documentation
 is quite good.
 
-The only other thing to mention here is that to have **Apprise** to send emails from
-an email on standard providers to another email (which is what **mutt** does in the parent script),
-this is the only syntax for the URL that the author has been able to get to work.
+The only other thing to mention here, since its not especially clear in the **Apprise** documentation
+is that to have **Apprise** to send emails from an email on standard providers to another email with a
+different "from" sender (which is what **mutt** does in the parent script), this is the syntax
+for the **Apprise** type URL Required.
 
 ```bash
-mailto://server.example:password@gmail.com?to=email-to-send-notifications-to@example.org
+mailtos://server.example:password@gmail.com?to=email-to-send-notifications-to@example.org&from=server.example.org
 ```
 
-(The **from** or **name** parameters don't seem to work if sending to another email, at least in the
-authors experience). Oauth2 does not appear to be supported yet either. Hence, the author recommends
-sticking with **mutt** in the default script for standard email notifications, and using **Apprise**
-for everything else that isn't email.
+While the author recommends sticking with **mutt** in the default script for standard email notifications, and 
+using **Apprise** for everything else that isn't email, the above works fine to essentially do the
+same thing **mutt** does in the main script.
 
-Nonetheless, the script allows sending emails via **Apprise** if desired. See the documentation
-for emails via **Apprise** here for more information:
+See the documentation for emails via **Apprise** here for more information:
 
 * [https://github.com/caronc/apprise/wiki/Notify_email](https://github.com/caronc/apprise/wiki/Notify_email)
 
