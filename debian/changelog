@@ -1,3 +1,37 @@
+snapraid-daily-hooks (0.5.0~beta4-1) stable; urgency=medium
+
+  * Updated author in man pages.
+
+  * Updated maintainer in debian directory.
+
+ -- Mark Finnan <mark9000@fastmail.org>  Wed, 05 Nov 2025 11:00:17 +0100
+
+snapraid-daily-hooks (0.5.0~beta3-1) stable; urgency=medium
+
+  * Added back a hook for ntfy!
+    - This is a very simple bash hook script that uses curl to send
+      a notification to an ntfy server.
+    - While the author still recommends using the Apprise hook in
+      conjunction with ntfy, this hook script offers a more simple
+      alternative.
+    - Given that it only uses curl, the default is to attach the
+      email runlog as a file. This is probably ok for most people,
+      as 95% of the information is in the subject anyway.
+    - [TO-DO] Need to test out some other scenarios.
+
+  * Apprise Hook Changes:
+    - Added some additional printouts to apprise hook to include numbers
+      of changes when thresholds are not exceeded.
+    - Fixed issue where count of characters in the body was not done
+      in certain circumstances.
+    - Cleaned up comments.
+
+  * Plan to add Docker Container Hook Script ...TBD whether will be included
+    in version 0.5.0 or not... Might just refine the ntfy hook as
+    much as possible, and do the docker hook in 0.6.0 instead....
+
+ -- Mark Finnan <mark9000@fastmail.org>  Mon, 22 Sep 2025 11:29:37 +0100
+
 snapraid-daily-hooks (0.4.3-1) stable; urgency=medium
 
   * Added a check on /usr/lib/systemd/system for the unit file in
@@ -8,7 +42,7 @@ snapraid-daily-hooks (0.4.3-1) stable; urgency=medium
     services like Telegram or ntfy will notify the user if an update
     is available on the Github Page.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Mon, 01 Sep 2025 11:52:21 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Mon, 01 Sep 2025 11:52:21 +0100
 
 snapraid-daily-hooks (0.4.2-1) stable; urgency=medium
 
@@ -19,7 +53,7 @@ snapraid-daily-hooks (0.4.2-1) stable; urgency=medium
 
   * Updated service hook manual entry to add this information.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Sun, 17 Aug 2025 18:15:11 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Sun, 17 Aug 2025 18:15:11 +0100
 
 snapraid-daily-hooks (0.4.1-1) stable; urgency=medium
 
@@ -37,7 +71,7 @@ snapraid-daily-hooks (0.4.1-1) stable; urgency=medium
     - Made error message more helpful in Apprise hook if apprise
       is not found on the User's $PATH variable.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Sun, 17 Aug 2025 11:39:19 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Sun, 17 Aug 2025 11:39:19 +0100
 
 snapraid-daily-hooks (0.4.0-1) stable; urgency=medium
 
@@ -66,7 +100,7 @@ snapraid-daily-hooks (0.4.0-1) stable; urgency=medium
       use xargs which is no longer used.
     - Removed jq dependency as it was unused.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Sat, 09 Aug 2025 11:49:23 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Sat, 09 Aug 2025 11:49:23 +0100
 
 snapraid-daily-hooks (0.3.5-1) stable; urgency=medium
 
@@ -80,7 +114,7 @@ snapraid-daily-hooks (0.3.5-1) stable; urgency=medium
 
   * Updates to Apprise hook manual entry.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Tue, 05 Aug 2025 12:04:09 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Tue, 05 Aug 2025 12:04:09 +0100
 
 snapraid-daily-hooks (0.3.4-2) stable; urgency=medium
 
@@ -90,7 +124,7 @@ snapraid-daily-hooks (0.3.4-2) stable; urgency=medium
 
   * Package is now 100% lintian clean with no overrides required.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Sun, 03 Aug 2025 13:26:48 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Sun, 03 Aug 2025 13:26:48 +0100
 
 snapraid-daily-hooks (0.3.4-1) stable; urgency=medium
 
@@ -101,7 +135,7 @@ snapraid-daily-hooks (0.3.4-1) stable; urgency=medium
 
   * Minor tweaks to maintainer script.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Mon, 28 Jul 2025 14:47:12 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Mon, 28 Jul 2025 14:47:12 +0100
 
 snapraid-daily-hooks (0.3.3-1) stable; urgency=medium
 
@@ -115,7 +149,7 @@ snapraid-daily-hooks (0.3.3-1) stable; urgency=medium
     script ended in warning along with some other cases in the Apprise
     Hook.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Sun, 27 Jul 2025 19:43:58 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Sun, 27 Jul 2025 19:43:58 +0100
 
 snapraid-daily-hooks (0.3.2-1) stable; urgency=medium
 
@@ -137,14 +171,14 @@ snapraid-daily-hooks (0.3.2-1) stable; urgency=medium
 
   * No changes to other hook scripts.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Fri, 25 Jul 2025 22:00:10 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Fri, 25 Jul 2025 22:00:10 +0100
 
 snapraid-daily-hooks (0.3.1-1) stable; urgency=medium
 
   * Added detection of overall result printout to compact log generation
     in Apprise Hook.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Sun, 20 Jul 2025 10:01:39 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Sun, 20 Jul 2025 10:01:39 +0100
 
 snapraid-daily-hooks (0.3.0-1) stable; urgency=medium
 
@@ -158,7 +192,7 @@ snapraid-daily-hooks (0.3.0-1) stable; urgency=medium
   * Removed ntfy hook script as its functionality is much better served
     via Apprise.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Thu, 17 Jul 2025 20:19:22 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Thu, 17 Jul 2025 20:19:22 +0100
 
 snapraid-daily-hooks (0.2.0-1) stable; urgency=medium
 
@@ -168,14 +202,14 @@ snapraid-daily-hooks (0.2.0-1) stable; urgency=medium
 
   * Added a banner printout to the ntfy hook like the main script.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Tue, 15 Jul 2025 13:03:43 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Tue, 15 Jul 2025 13:03:43 +0100
 
 snapraid-daily-hooks (0.1.4-1) stable; urgency=medium
 
   * Fixed issue with NTFY hook whereby sometimes the number
     of notifications was not correctly determined by the script.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Tue, 08 Jul 2025 20:32:48 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Tue, 08 Jul 2025 20:32:48 +0100
 
 snapraid-daily-hooks (0.1.3-1) stable; urgency=medium
 
@@ -186,7 +220,7 @@ snapraid-daily-hooks (0.1.3-1) stable; urgency=medium
 
   * NTFY Script version increased to 0.1.2
 
- -- Mark Finnan <mfinnan101@gmail.com>  Mon, 07 Jul 2025 20:00:04 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Mon, 07 Jul 2025 20:00:04 +0100
 
 snapraid-daily-hooks (0.1.2-1) stable; urgency=medium
 
@@ -206,7 +240,7 @@ snapraid-daily-hooks (0.1.2-1) stable; urgency=medium
 
   * Updates to manual page.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Thu, 03 Jul 2025 17:19:44 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Thu, 03 Jul 2025 17:19:44 +0100
 
 snapraid-daily-hooks (0.1.1-1) stable; urgency=medium
 
@@ -215,10 +249,10 @@ snapraid-daily-hooks (0.1.1-1) stable; urgency=medium
   * Added a debian/postinst script to print a banner after a fresh
     installation.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Tue, 01 Jul 2025 11:01:51 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Tue, 01 Jul 2025 11:01:51 +0100
 
 snapraid-daily-hooks (0.1-1) stable; urgency=medium
 
   * Initial release.
 
- -- Mark Finnan <mfinnan101@gmail.com>  Mon, 09 Jun 2025 06:17:56 +0100
+ -- Mark Finnan <mark9000@fastmail.org>  Mon, 09 Jun 2025 06:17:56 +0100
