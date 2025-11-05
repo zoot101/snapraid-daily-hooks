@@ -14,7 +14,7 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.2.3"
+script_version="0.2.4"
 
 # Script Variables
 max_supported_apprise_urls=20
@@ -206,13 +206,6 @@ check_apprise_urls() {
 # Check for End Hook in Run Log
 # (is called multiple times below)
 check_for_end_hook(){
-
-  ###################################################
-  # End Hook
-  ###################################################
-  # If ran, check what the result was. If the end hook ends in an error,
-  # the main script exits, so the function exits here. Setup below
-  # is compatible with the multiple and single versions of parent script
   if grep_cmd "End-Hook: YES"
   then
     if grep_cmd "End Hook completed successfully"; then
@@ -239,15 +232,10 @@ check_overall_result() {
     log "Overall Result: Warning(s)"
   fi
 }
-# Generate a more compact version of the email runlog
-# since applications like ntfy or telegram are more suited
-# to short messages than standard email.
-
-# This turned out to be more complicated than expected, but
-# the below has been tested with all known scenarios that
-# the main script can end with
+# Generate a more compact version of the email runlog since applications like
+# ntfy or telegram are more suited to short messages than standard email.
+# Long Term, would like to integrate this into the main script...
 generate_compact_runlog() {
-
   local subject="${1}"
   local runlog="${2}"
   local attachment="${3}"
@@ -261,8 +249,6 @@ generate_compact_runlog() {
   fi
 
   # Place the Hostname, OS Name and SnapRAID version into the Compact Runlog,
-  # This is to allow for the scenario where the script is running on multiple
-  # machines and using the same ntfy/telegram/etc. channel/chat
   snapraid_version=$(snapraid -V | awk '{print $2}' | sed 's/v//')
   snapraid_daily_version=$(grep -w "SnapRAID-DAILY Version:" "${runlog}" | awk '{print $NF}')
   system_hostname=$(hostname --fqdn) &> "/dev/null"
@@ -276,14 +262,7 @@ generate_compact_runlog() {
   if [ ! -z "${update_status}" ]; then log "Note: Update Available on Github"; fi
   log "======================="
 
-  # Check the main email body (runlog) for what was ran in
-  # SnapRAID-DAILY and the results of it. Note that any time
-  # the below exits early, the end hook must be checked for
-
-  ###################################################
   # Initial Status Check
-  ###################################################
-  # This is always ran. All Scenarios need to be considered here
   if grep_cmd "No Issues Found in Initial Check"; then
     log "Initial Status: OK"
   elif grep_cmd "SnapRAID is already Use - Exiting"; then
@@ -309,12 +288,7 @@ generate_compact_runlog() {
     log "Suggest Checking Logs!"
   fi
 
-  ###################################################
   # Start Hook
-  ###################################################
-  # If ran, check what the result was. If the start hook ends in an error,
-  # the main script exits, so the function exits here. Setup below is
-  # compatible with single and multiple versions of main script
   if grep_cmd "Start-Hook: YES"; then
     if grep_cmd "Start Hook completed successfully"; then
       log "Start Hook(s): Completed OK"
@@ -330,11 +304,7 @@ generate_compact_runlog() {
     log "Start Hook(s): None"
   fi
  
-  ###################################################
   # Touch
-  ###################################################
-  # If ran, check what outcome was. The main script exits with an error,
-  # so the function exits here also in that case
   if grep_cmd "Touch Not Needed"; then
     log "Touch: Not Needed"
   else
@@ -349,12 +319,7 @@ generate_compact_runlog() {
     fi
   fi
 
-  ###################################################
   # Difference Check
-  ###################################################
-  # This is always ran. Possible Scenarios are: Changes Detected, No Changes,
-  # Thresholds exceeded, Thresholds overriden or an error condition
-
   # Get the Number of Each Changes 
   N_added=$(grep -w -m 1 "Added:" "${runlog}" | awk '{print $NF}')
   N_removed=$(grep -w -m 1 "Removed:" "${runlog}" | awk '{print $NF}')
@@ -387,13 +352,10 @@ generate_compact_runlog() {
     log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
     log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
 
-  # Check for the case where no changes are detected
+  # Check for the case where no changes are detected. If sync only was ran
+  # check for the end hook and stop here only if a sync wasn't in progress
   elif grep_cmd "No Changes - Nothing to Sync"; then
     log "Difference Check: No Changes"
-
-    # If Sync Only was ran - check for then end hook and
-    # stop here but only stop if a sync isn't already in progress
-    # Just like what the main SnapRAID-DAILY script does...
     if grep_cmd "Run-Sync: YES" && grep_cmd "Run-Scrub: NO"; then
       if grep_cmd "However a sync is still in progress - Continuing"; then
         log "However, Sync In Progress -> Continuing"
@@ -404,7 +366,6 @@ generate_compact_runlog() {
         check_overall_result
         return 1
       fi
-    # Otherwise just specify the sync was not ran
     else
       log "Sync: Not Ran"
     fi
@@ -428,12 +389,8 @@ generate_compact_runlog() {
     log "Difference Check: Not Ran"
   fi
 
-  ###################################################
   # Sync Operation
-  ###################################################
-  # Check if the Sync was ran
   if grep_cmd "Run-Sync: YES"; then
-    # Sync Success
     if grep_cmd "Sync was Successful"; then
       log "Sync: Completed OK"
 
@@ -473,15 +430,10 @@ generate_compact_runlog() {
     log "Sync: Not Ran"
   fi
 
-  ###################################################
   # Scrub Operation
-  ###################################################
-  # Check if the Scrub was ran
   if grep_cmd "Run-Scrub: YES"; then
     # Possible Scenarios are Completed OK, Nothing to Scrub
     # or Sync Required, everything else is printed as an error
-    # Can get away with not checking everything here as the
-    # script moves on to the end hook regardless
     if grep_cmd "Array not up-to-date - Sync Required"; then
       log "Scrub: Sync Required"
     elif grep_cmd "Found Nothing to Scrub"; then
@@ -502,14 +454,8 @@ generate_compact_runlog() {
     log "Scrub: Not Ran"
   fi
 
-  ###################################################
-  # End Hook
-  ###################################################
+  # Check End Hook & Overall Result
   check_for_end_hook
-
-  ###################################################
-  # Check Overall Result
-  ###################################################
   check_overall_result
 }
 
@@ -549,11 +495,9 @@ send_notifications() {
 
   # Step through all Apprise URLs defined in Config
   for i in $(seq 1 1 $N_Apprise_Urls); do
-    # Use Reference Variables as can't export arrays...
     apprise_url_to_contact="apprise_url"$i
 
-    # Check for the presence of "mailto" or "mailtos" at the start in the
-    # Apprise URL
+    # Check for the presence of "mailto" or "mailtos" at the start in the Apprise URL
     if ! echo "${!apprise_url_to_contact}" | grep -qEw "^mailto|^mailtos"; then
       local is_email="no"
       if [ "${apprise_disable_compact_runlog}" == "no" ]; then
