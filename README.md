@@ -19,6 +19,9 @@ the start and end.
   - [Testing the Apprise Hook](#testing-the-apprise-hook)
 - [SnapRAID-DAILY Healthchecks Hook](#snapraid-daily-healthchecks-hook)
   - [Testing the Healthchecks Hook](#testing-the-healthchecks-hook)
+- [SnapRAID-DAILY Ntfy Hook](#snapraid-daily-ntfy-hook)
+  - [Ntfy Hook Config File Options](#ntfy-hook-config-file-options)
+  - [Testing the Ntfy Hook](#testing-the-ntfy-hook)
 - [SnapRAID-DAILY Service Hook](#snapraid-daily-service-hook)
   - [Testing the Service Hook](#testing-the-service-hook)
   - [Running as a Non-Root User](#running-as-a-non-root-user)
@@ -37,6 +40,7 @@ to **SnapRAID-DAILY**.
 
 * **snapraid-daily-apprise-hook**
 * **snapraid-daily-healthchecks-hook**  
+* **snapraid-daily-ntfy-hook**
 
 This hook script is then intended to be used with the start and end hook function
 of **SnapRAID-DAILY**, to stop a list of services while the main script is running
@@ -387,6 +391,117 @@ source snapraid-daily.conf
 One can then inspect the **healthchecks.io** WebUI to see if the expected result is
 produced. Note the "body3.txt" argument isn't important for the purposes of testing
 above, it can be anything, it doesn't even have to be a file.
+
+# SnapRAID-DAILY Ntfy Hook
+
+**ntfy** is a wonderful tool to setup up Android/iOS notifications that comes highly
+recommended from the author. It is very quick to set up, the documentation is very good
+and it is infintely flexible. It is also quite easy to Self-Host. 
+
+This hook script is for use with **ntfy**. The **SnapRAID-DAILY** **Apprise** hook can
+also be used with **ntfy**, and that is what the author recommends. However, this hook script
+offers an alternative if one does not want to install **Apprise** and is using **ntfy**.
+
+To get started one will need an instance of **ntfy** to use. While the script can be used with
+the public ntfy server (ntfy.sh), its probably better to use the Apprise hook script instead for that.
+
+The specifics about setting up **ntfy** are not covered here and left to the user.
+
+There is a quick guide on how to get started quickly here:
+
+* [https://docs.ntfy.sh](https://docs.ntfy.sh)
+
+Publishing notifications are then covered here:
+
+* [https://docs.ntfy.sh/publish](https://docs.ntfy.sh/publish)
+
+There is very good documentation here on how to Self-Host it:
+
+* [https://docs.ntfy.sh/install](https://docs.ntfy.sh/install)
+
+The script works by attaching the Email Body as a text file attachment to notifications that
+are sent. The email subject then is the notification title. Like the main script, if an error
+was encountered, a 2nd notification is sent with the **SnapRAID** command logfile that caused
+the error attached.
+
+## Ntfy Hook Config File Options
+
+The following config is required in **/etc/snapraid-daily.conf**.
+
+```
+# Ntfy Config
+ntfy_url="https://ntfy.sh/channel_name"
+ntfy_icon_url="https://url/to/icon.png" (Optional)
+ntfy_verbose="yes" (Optional)
+ntfy_priority=1 ( Optional - A number from 1 to 5 )
+
+# If auth is configured - recommended for self-hosted setups:
+ntfy_user=username
+ntfy_password=password
+```
+
+The above configuration file parameters are covered below.
+
+**ntfy_url** : Main ntfy server URL, examples:
+
+* ntfy\_url="https://ntfy.sh/topic-name"     
+* ntfy\_url="https://ntfy.example.org/topic-name"   
+
+Required.
+
+**ntfy_icon_url** : If one would like an icon to included with the notifications,
+then one can specify a URL to an Icon File here. If for instance you already have
+some sort of Webserver on your Self-Hosted setup, this can be added easily. Example:
+
+* ntfy\_icon\_url="https://example.org/path/to/icon.png"
+
+This is optional and can be omitted or commented out if not using.
+
+**ntfy_verbose** : This is useful to have the json data received from the **ntfy** server
+printed for debugging. Set to "yes" to enable. Comment out or set to "no" to disable.
+
+This is also optional.
+
+**ntfy_priority** : **ntfy** allows one to specify different notification priorities to vary the duration of the
+vibration bursts among other things. It is covered in the documentation here:
+
+* [https://docs.ntfy.sh/publish](https://docs.ntfy.sh/publish) 
+
+It can be specified as a number from 1 to 5 here. Comment out or omit to disable and
+assume the default of 3.
+
+**ntfy_user & ntfy_password** : The default configuration of **ntfy** allows anyone to
+publish anything to any topic. This is probably not desirable for a Self-Hosted setup
+particularly if it accessible from the internet. These parameters
+allow one to specify a username and password to use for authorisation. Make sure that the server is setup
+with https if using.
+
+Omit or leave blank to disable and allow anyone to publish anything to any topic.
+
+For an entirely local setup, these can be safely omitted to assume the default setup.
+
+# Testing the Ntfy Hook
+
+Finally it is a good idea to test the script out on its own before using it with **snapraid-daily**
+directly. One will need a sample email output to test the script.
+
+Either let the main script complete and copy & paste the email into a file, or copy the sample
+output from the Github page here:
+
+* [https://github.com/zoot101/snapraid-daily-hooks](https://github.com/zoot101/snapraid-daily-hooks)
+
+Then, do the below: 
+
+```bash
+# Source the main config
+source /etc/snapraid-daily.conf
+
+# To test the start commands
+snapraid-daily-ntfy-hook "SnapRAID-DAILY: All OK" "/path/to/sample/email/body.txt"
+
+# To test out the error scenario with a command log
+snapraid-daily-ntfy-hook "SnapRAID-DAILY: All OK" "/path/to/sample/email/body.txt" "/path/to/sample/command/log.txt"
+```
 
 # SnapRAID-DAILY-Service-Hook
 
