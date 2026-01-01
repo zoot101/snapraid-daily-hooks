@@ -480,7 +480,7 @@ Omit or leave blank to disable and allow anyone to publish anything to any topic
 
 For an entirely local setup, these can be safely omitted to assume the default setup.
 
-# Testing the Ntfy Hook
+## Testing the Ntfy Hook
 
 Finally it is a good idea to test the script out on its own before using it with **snapraid-daily**
 directly. One will need a sample email output to test the script.
