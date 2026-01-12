@@ -1,0 +1,249 @@
+snapraid-daily-hooks (0.5.0-1) stable; urgency=medium
+
+  * Added back a hook for ntfy!
+    - This is a very simple bash hook script that uses curl to send
+      a notification to an ntfy server.
+    - While the author still recommends using the Apprise hook in
+      conjunction with ntfy, this hook script offers a more simple
+      alternative.
+    - Given that it only uses curl, the default is to attach the
+      email runlog as a file. This is probably ok for most people,
+      as 95% of the information is in the subject anyway.
+
+  * Apprise Hook Changes:
+    - Added some additional printouts to apprise hook to include numbers
+      of changes when thresholds are not exceeded.
+    - Fixed issue where count of characters in the body was not done
+      in certain circumstances.
+    - Cleaned up comments.
+
+  * Updated author in man pages.
+
+  * Updated maintainer in debian directory.
+
+ -- Mark <mark9000@fastmail.org>  Thu, 01 Jan 2026 13:48:17 +0100
+
+snapraid-daily-hooks (0.4.3-1) stable; urgency=medium
+
+  * Added a check on /usr/lib/systemd/system for the unit file in
+    the service hook.
+
+  * Added the output of the Update check from the main script since
+    Version 1.5.3 to the compact log. Now notifications sent to
+    services like Telegram or ntfy will notify the user if an update
+    is available on the Github Page.
+
+ -- Mark <mark9000@fastmail.org>  Mon, 01 Sep 2025 11:52:21 +0100
+
+snapraid-daily-hooks (0.4.2-1) stable; urgency=medium
+
+  * Made a change to the service hook whereby upon restarting services
+    if any errors are encountered, the script will now continue to
+    the end and attempt to restart all services before handing back
+    control to SnapRAID-DAILY.
+
+  * Updated service hook manual entry to add this information.
+
+ -- Mark <mark9000@fastmail.org>  Sun, 17 Aug 2025 18:15:11 +0100
+
+snapraid-daily-hooks (0.4.1-1) stable; urgency=medium
+
+  * For the service hook, added a check if the services are
+    defined with the ".service" at the end in the main config file.
+    - This is now removed if this is the case.
+    - Made this explicit in the man page for the service hook.
+
+  * Updated sample Telegram/ntyf notification body in Apprise Hook
+    Manpage to include the duration which was added in v0.4.0.
+
+  * Minor refinements to other scripts:
+    - Silence which commands in all hook scripts.
+    - Minor changes to reduce line count
+    - Made error message more helpful in Apprise hook if apprise
+      is not found on the User's $PATH variable.
+
+ -- Mark <mark9000@fastmail.org>  Sun, 17 Aug 2025 11:39:19 +0100
+
+snapraid-daily-hooks (0.4.0-1) stable; urgency=medium
+
+  * Added a simple command hook that executes a list of commands
+    at the start of the run of the main script and the end.
+    - Up to 5 Start and End Commands are Supported
+    - An example use case could be to mount the parity disks
+      at the start, and unmount them when finished.
+    - Added manual page and updated main man page.
+
+  * Apprise Hook Changes
+    - Value of apprise_disable_compact_runlog parameter is now
+      included in the apprise hook print outs.
+    - Added a verbose option to the Apprise hook to add
+      the -vv switch to aid in debugging.
+    - Added a warning about notification body character number as
+      some services (Telegram is an example) place limits on the
+      amount of characters in a message. This is actually the
+      principal reason for the condensed log.
+    - Sync and Scrub durations are now added to the condensed
+      log and will now be shown.
+    - Updates to Apprise Hook Manual Entry.
+
+  * Debian Package:
+    - Removed findutils dependency as it was originally added to
+      use xargs which is no longer used.
+    - Removed jq dependency as it was unused.
+
+ -- Mark <mark9000@fastmail.org>  Sat, 09 Aug 2025 11:49:23 +0100
+
+snapraid-daily-hooks (0.3.5-1) stable; urgency=medium
+
+  * Added an all inclusive manual entry - snapraid-daily-hooks(1),
+    as a point of reference to each individual manual entry.
+
+  * Added an option to disable the compact runlog (short notification
+    body) for everything other than emails for the Apprise Hook.
+    - Noting that this is not recommended to use as it may cause
+      formatting isuses, but is included for potential edge cases.
+
+  * Updates to Apprise hook manual entry.
+
+ -- Mark <mark9000@fastmail.org>  Tue, 05 Aug 2025 12:04:09 +0100
+
+snapraid-daily-hooks (0.3.4-2) stable; urgency=medium
+
+  * Removed build dependency on dh-exec as it was unused.
+
+  * Removed postinst script.
+
+  * Package is now 100% lintian clean with no overrides required.
+
+ -- Mark <mark9000@fastmail.org>  Sun, 03 Aug 2025 13:26:48 +0100
+
+snapraid-daily-hooks (0.3.4-1) stable; urgency=medium
+
+  * Completed Lintian check on Debian package.
+
+  * Removed original manpage in favor of separate manpages for each
+    script.
+
+  * Minor tweaks to maintainer script.
+
+ -- Mark <mark9000@fastmail.org>  Mon, 28 Jul 2025 14:47:12 +0100
+
+snapraid-daily-hooks (0.3.3-1) stable; urgency=medium
+
+  * Updated Apprise hook condensed log function to be compatible
+    with new versions of the main SnapRAID-DAILY script that
+    will support multiple start/end/notification hooks.
+    - Support for older versions of the main script is uneffected.
+
+  * Fixed issue where overall result did not appear in condensed
+    log for non-email notifications for conditions where the main
+    script ended in warning along with some other cases in the Apprise
+    Hook.
+
+ -- Mark <mark9000@fastmail.org>  Sun, 27 Jul 2025 19:43:58 +0100
+
+snapraid-daily-hooks (0.3.2-1) stable; urgency=medium
+
+  * Added script version to Apprise hook printouts.
+
+  * Added the SnapRAID-DAILY Script version to the condensed
+    notification log printout.
+
+  * Added an option to the Apprise hook to specify a custom path to
+    the apprise binary, for the Apprise hook script. This for cases
+    where the apprise binary is in a different location than $PATH
+    (Closes #2).
+
+  * Where the main script ends in Warning and passes in a logfile from
+    the SnapRAID Command that generated the error, a check is now done
+    in the Apprise hook on the size of this file and the user is notified
+    if it is greater than 15MB. This is because this can cause issues
+    for certain notification services (ntfy is an example) (Closes #1).
+
+  * No changes to other hook scripts.
+
+ -- Mark <mark9000@fastmail.org>  Fri, 25 Jul 2025 22:00:10 +0100
+
+snapraid-daily-hooks (0.3.1-1) stable; urgency=medium
+
+  * Added detection of overall result printout to compact log generation
+    in Apprise Hook.
+
+ -- Mark <mark9000@fastmail.org>  Sun, 20 Jul 2025 10:01:39 +0100
+
+snapraid-daily-hooks (0.3.0-1) stable; urgency=medium
+
+  * Added a hook script for use with Apprise
+    - Generates condensed version of the Email Body that better suits
+      services like ntfy or Telegram.
+
+  * Added dependency for Apprise since it is now packaged and 
+    incorporated into Debian since 12 (Bookworm).
+
+  * Removed ntfy hook script as its functionality is much better served
+    via Apprise.
+
+ -- Mark <mark9000@fastmail.org>  Thu, 17 Jul 2025 20:19:22 +0100
+
+snapraid-daily-hooks (0.2.0-1) stable; urgency=medium
+
+  * Added a hook script for use with Healthchecks.io
+
+    - Updated the manpage to add details.
+
+  * Added a banner printout to the ntfy hook like the main script.
+
+ -- Mark <mark9000@fastmail.org>  Tue, 15 Jul 2025 13:03:43 +0100
+
+snapraid-daily-hooks (0.1.4-1) stable; urgency=medium
+
+  * Fixed issue with NTFY hook whereby sometimes the number
+    of notifications was not correctly determined by the script.
+
+ -- Mark <mark9000@fastmail.org>  Tue, 08 Jul 2025 20:32:48 +0100
+
+snapraid-daily-hooks (0.1.3-1) stable; urgency=medium
+
+  * Improvments to documentation. 
+
+  * Added a wait between subsequent notifications in 
+    snapraid-daily-ntfy-hook script.
+
+  * NTFY Script version increased to 0.1.2
+
+ -- Mark <mark9000@fastmail.org>  Mon, 07 Jul 2025 20:00:04 +0100
+
+snapraid-daily-hooks (0.1.2-1) stable; urgency=medium
+
+  * Refinements to snapraid-daily-ntfy-hook:
+
+    - Shorted notification body to Email Subject only
+
+    - Added option in snapraid-daily config file to attach the main
+      run log (email body).
+
+    - Added notification icons depending on whether the main script
+      ends in success or not.
+
+    - In the event of exceeded thresholds added the amount of files
+      and the number delete, moved and updated to the notification
+      body.
+
+  * Updates to manual page.
+
+ -- Mark <mark9000@fastmail.org>  Thu, 03 Jul 2025 17:19:44 +0100
+
+snapraid-daily-hooks (0.1.1-1) stable; urgency=medium
+
+  * Added detailed manual entry - snapraid-daily-hooks(1)
+
+  * Added a debian/postinst script to print a banner after a fresh
+    installation.
+
+ -- Mark <mark9000@fastmail.org>  Tue, 01 Jul 2025 11:01:51 +0100
+
+snapraid-daily-hooks (0.1-1) stable; urgency=medium
+
+  * Initial release.
+
+ -- Mark <mark9000@fastmail.org>  Mon, 09 Jun 2025 06:17:56 +0100

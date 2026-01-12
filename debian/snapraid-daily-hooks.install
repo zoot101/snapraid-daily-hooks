@@ -1,0 +1,5 @@
+snapraid-daily-healthchecks-hook /usr/bin
+snapraid-daily-ntfy-hook /usr/bin
+snapraid-daily-apprise-hook /usr/bin
+snapraid-daily-service-hook /usr/bin
+snapraid-daily-commands-hook /usr/bin

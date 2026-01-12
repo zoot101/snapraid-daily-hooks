@@ -1,0 +1,41 @@
+Source: snapraid-daily-hooks
+Section: misc
+Priority: optional
+Maintainer: Mark <mark9000@fastmail.org>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Homepage: https://github.com/zoot101/snapraid-daily-hooks
+
+Package: snapraid-daily-hooks
+Architecture: any
+Depends:
+ coreutils (>=8.3),
+ snapraid-daily (>=1.4.0),
+ bash (>=5.0),
+ curl (>=8.0),
+ jq (>=1.7.0),
+ apprise (>=1.9.0),
+ gawk (>=5.0),
+ ${misc:Depends},
+Recommends:
+ sudo (>=1.7),
+Description: Collection of Hook Scripts for use with SnapRAID-DAILY
+ The following Hook Scripts are included:
+ .
+  * Hook for Sending Notifications via Apprise that supports services
+    such as Telegram, ntfy, Slack, Discord, Standard email and many
+    more.
+  * Hook for Healthchecks.io (https://healthchecks.io) to specify
+    whether the job runs successfully or not.
+  * Hook for Stopping/Starting Services via Systemd. The services
+    are stopped when the main SnapRAID-DAILY script starts and
+    restarted again when it finishes. Can be useful if there are
+    services which could modify files while SnapRAID is running.
+  * Hook for Executing a list of Commands at the start and end,
+    a sample use-case could be to mount and unmount the SnapRAID
+    parity disk(s).
+ .
+ The Github Page is: https://github.com/zoot101/snapraid-daily-hooks
+
