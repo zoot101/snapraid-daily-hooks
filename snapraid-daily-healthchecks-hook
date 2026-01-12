@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+
+###################################################
+# SnapRAID-Daily Healthchecks.io Notification Hook
+###################################################
+# Github Page: https://github.com/zoot101/snapraid-daily-hooks
+###################################################
+
+script_version="0.1.2"
+
+# Script Arguments
+# $1 - Email Subject
+# $2 - File Containing the Body
+# $3 - Attachment (if error was encountered)
+
+###################################################
+# Functions
+###################################################
+
+# Main Function
+main() {
+  # Check Requirements
+  check_for_requirements "$@"
+
+  # Print Banner like Main Script
+  echo ""
+  echo "##############################"
+  echo "# SnapRAID-DAILY: Healthchecks.io Hook"
+  echo "##############################"
+
+  # Get the Inputs from the Main Script using the
+  # email body file
+  get_snapraid_daily_inputs "$@"
+
+  # Contact the URL
+  contact_urls "$@"
+
+  # Exit with Success
+  echo ""
+  exit 0
+}
+
+# Requirements Check
+check_for_requirements() {
+  if ! which curl &>/dev/null; then
+    echo "ERROR: curl is not installed/found in PATH - Exiting"
+    exit 1
+  fi
+
+  # Check for an Email Subject and Email Body from Main Script
+  if [ -z "${1}" ]; then
+    echo "ERROR: No Email Subject specifed from main script - Exiting"
+    exit 1
+  fi
+  if [ ! -f "${2}" ]; then
+    echo "ERROR: No Email Body (Runlog) file specified from main script - Exiting"
+    exit 1
+  fi
+}
+
+# Determine snaraid-daily input options to figure out which URL to contact
+get_snapraid_daily_inputs() {
+  local runlog="${2}"
+
+  # Grep the main runlog to find out whether sync-only or scrub-only is used
+  # Check that sync was intended to be ran or not
+  if grep -qw "Run-Sync: YES" "${runlog}";  then
+    sync_ran="yes"
+  else
+    sync_ran="no"
+  fi
+
+  # Check that scrub was intended to be ran or not
+  if grep -qw "Run-Scrub: YES" "${runlog}"; then
+    scrub_ran="yes"
+  else
+    scrub_ran="no"
+  fi
+
+  # If Both are yes then the master script was called without options
+  # Default Run: Sync followed by Scrub
+  # Exit if healthchecks_url (overall) not defined
+  if [ "${sync_ran}" == "yes" ] && [ "${scrub_ran}" == "yes" ]; then
+    echo "Main Script Options: Sync & Scrub"
+    if [ -z "${healthchecks_url}" ]; then
+      echo "ERROR: healthchcks_url not defined in snapraid-daily.conf - Exiting"
+      exit 1
+    else
+      echo " * Using Overall URL: ${healthchecks_url}"
+      contact_url="${healthchecks_url}"
+    fi
+
+  # Scrub Only Run
+  # If the Scrub URL Doesn't exist, fall back to the overall URL, and
+  # failing that - exit in error
+  elif [ "${scrub_ran}" == "yes" ]; then
+    echo "Main Script Options: Scrub Only"
+    if [ -z "${healthchecks_scrub_url}" ]; then
+      if [ ! -z "${healthchecks_url}" ]; then
+        echo " * Using Overall URL: ${healthchecks_url}"
+        contact_url="${healthchecks_url}"
+      else
+        echo " * ERROR: healthchecks_url or healthchecks_scrub_url not defined in snapraid-daily.conf - Exiting"
+        exit 1
+      fi
+    else
+      echo " * Using Scrub URL: ${healthchecks_scrub_url}"
+      contact_url="${healthchecks_scrub_url}"
+    fi
+
+  # Sync Only Run
+  # If the Sync URL Doesn't exist, fall back to the overall URL, and
+  # failing that - exit in error
+  elif [ "${sync_ran}" == "yes" ]; then
+    echo "Main Script Options: Sync Only"
+    if [ -z "${healthchecks_sync_url}" ]; then
+      if [ ! -z "${healthchecks_url}" ]; then
+        echo " * Using Overall URL: ${healthchecks_url}"
+        contact_url="${healthchecks_url}"
+      else
+        echo " * ERROR: healthchecks_url or healthchecks_sync_url not defined in snapraid-daily.conf - Exiting"
+        exit 1
+      fi
+    else
+      echo " * Using Sync URL: ${healthchecks_sync_url}"
+      contact_url="${healthchecks_sync_url}"
+    fi
+
+  # Else
+  else
+    echo " * ERROR: Unable to determine snapraid-daily input options - Exiting"
+    exit 1
+  fi
+}
+
+
+# Contact Healthchecks.io URL(s)
+contact_urls() {
+
+  # Check for Failure - If an attachment is present that means the main
+  # script ended in an Error/Warning - Signal Failure if that is the case
+  if [ ! -z "${3}" ]; then
+    # Append /1 to the url to signal failure
+    echo " * Result: Main Script ended in Error/Warning"
+    contact_url="${contact_url}/1"
+  else
+    # Append /0 to the url to signal success
+    echo " * Result: Main Script ended in Success"
+    contact_url="${contact_url}/0"
+  fi
+
+  # Send the Healthchecks.io URL a HTTP Request using curl
+  echo " * Contacting ${contact_url}..."
+  result=$(curl --silent --show-error --retry 3 "${contact_url}")
+
+  # Check for Success Code
+  if [ "${result}" == "OK" ]; then
+    echo " --> Response from Server: OK"
+  else
+    echo " --> Response from Server: Error(s)"
+  fi
+}
+
+###################################################
+# Call Main Functions
+###################################################
+main "$@"
+
