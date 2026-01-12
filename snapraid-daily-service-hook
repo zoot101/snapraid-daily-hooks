@@ -1,0 +1,204 @@
+#!/usr/bin/env bash
+
+###################################################
+# SnapRAID-Daily Service Hook
+###################################################
+# Github Page: https://github.com/zoot101/snapraid-daily-hooks
+###################################################
+# Simple bash script to stop/start a number of services
+
+# Script Arguments
+# $1 - "start" or "end"
+
+script_version="0.1.5"
+
+# Script Variables
+max_supported_services=20
+
+###################################################
+# MAIN FUNCTION
+###################################################
+main (){
+  # Stop Services
+  if [ "${1}" == "start" ]; then
+    # Check for root, falling back to using sudo
+    check_for_root_or_sudo
+
+    # Check How Many Services are defined in /etc/snapraid-daily.conf
+    check_services
+
+    # Stop Services
+    stop_services
+    exit 0
+
+  # Re-start services
+  elif [ "${1}" == "end" ]; then
+    # Check for root, falling back to using sudo
+    check_for_root_or_sudo
+
+    # Check How Many Services are defined in /etc/snapraid-daily.conf
+    check_services
+
+    # Re-Start Services
+    start_services
+    exit 0
+
+  # Exit for an empty argument
+  elif [ -z "${1}" ]; then
+    echo "ERROR: No Input Argument given"
+    echo "USAGE: $ snapraid-daily-service-hook start|end"
+    exit 1
+
+  # Exit for Invalid Arguments with an Error
+  else
+    echo "ERROR: Invalid Argument:" "${1}"
+    exit 1
+  fi
+}
+
+###################################################
+# OTHER FUNCTIONS
+###################################################
+# Log to Email with and without time (main_logfile is passed in
+# from main script through the use of export)
+log_to_email() {
+  echo "$@" | tee -a $main_logfile
+}
+log_to_email_time() {
+  echo $(date +%H:%M:%S) ":" "$@" | tee -a $main_logfile
+}
+
+# Check how many services are specified in /etc/snapraid-daily.conf
+check_services() {
+  # Check that "service1" is specifed, if print a help message
+  # and exit wtih an error code
+  if [ -z "${service1}" ]; then
+    echo "ERROR: No Services specified - Require the following in /etc/snapraid-daily.conf"
+    echo "       export service1=\"smbd\""
+    echo "       export service2=\"sonarr\""
+    echo "       export service3=\"radarr\""
+    echo "       ..."
+    echo "       export serviceN=\"whatever\""
+    echo "       etc."
+    echo ""
+    echo " * Where N is the number of services to Start/Stop"
+    echo ""
+    echo " * Start from service1, if numbers are skipped anything after"
+    echo "   the skipped number are ignored."
+    echo ""
+    echo " * For example if service1...service5 are defined, but then"
+    echo "   service7..service10 are defined they are ignored as service6"
+    echo "   was skipped"
+    echo ""
+    echo " * Don't include \".service\" above"
+    exit 1
+
+  # Otherwise determine the number of services specified. If 1,2,3,4
+  # are specified and 6,7,8 are specified. 6,7,8 are ignored as 5 is skipped
+  else
+    for i in $(seq 1 1 $max_supported_services); do
+      # Use reference variables - Remove ".service" from end if present
+      service_to_check="service"$i
+      unit_file=$(echo "${!service_to_check}" | sed 's/.service$//')
+
+      # Check the service exists or not
+      if [ ! -f "/etc/systemd/system/${unit_file}.service" ] && \
+         [ ! -f "/lib/systemd/system/${unit_file}.service" ] && \
+         [ ! -f "/usr/lib/systemd/system/${unit_file}.service" ]
+      then
+        N_Services=$((i-1))
+        log_to_email_time "$N_Services Service(s) defined in config"
+        break
+      fi
+    done
+  fi
+} 
+
+# Check for Root falling back to sudo
+check_for_root_or_sudo() {
+  # If ran as root, use systemctl as normal
+  if [ $UID == 0 ]; then
+    systemctl_cmd() {
+      systemctl "$@"
+    }
+
+  # Non Root User - Fall back to Sudo
+  elif [ $UID != 0 ]; then
+    # Determine the User Running the Script
+    username=$(whoami)
+
+    # First check if sudo is installed
+    if ! which sudo &>/dev/null; then
+      log_to_email_time "ERROR: Script not ran as root and sudo not installed - exiting"
+      exit 1
+
+    # Otherwise check if the user running the script is in the sudoers group
+    elif ! $(groups "${username}" | grep -qEw "sudo|sudoers"); then
+      log_to_email_time "ERROR: Script not ran as root and user is not in sudo group - exiting"
+      exit 1
+
+    # Otherwise set the systemctl command to sudo systemctl
+    else
+      systemctl_cmd() {
+        sudo systemctl "$@"
+      }
+    fi
+  fi
+}
+
+# Stop Services (If at least one valid service was found)
+stop_services() {
+  if [ $N_Services -gt 0 ]; then
+    for i in $(seq 1 1 $N_Services); do
+      # Use Reference Variables as can't export arrays...
+      service_to_stop="service"$i
+  
+      # Stop Service Using systemctl command above
+      systemctl_cmd stop "${!service_to_stop}"
+    
+      # Check Return Code
+      if [ $? != 0 ]; then
+        log_to_email_time "ERROR stopping service $i/$N_Services:" "${!service_to_stop}"
+        exit 1
+      else
+        log_to_email_time "Stopped Service $i/$N_Services:" "${!service_to_stop}"
+      fi
+    done
+  else
+    log_to_email_time "Not Stopping any Services as no valid services found in config file"
+  fi
+}
+
+# Start Services (If at least one valid service was found)
+start_services() {
+  if [ $N_Services -gt 0 ]; then
+    restart_errors="no"
+    for i in $(seq 1 1 $N_Services); do
+      # Use reference variables as can't export arrays...
+      service_to_start="service"$i
+  
+      # Start Service Using systemctl
+      systemctl_cmd start "${!service_to_start}"
+  
+      # Check Return Code
+      if [ $? != 0 ]; then
+        log_to_email_time "ERROR starting service $i/$N_Services" "${!service_to_start}"
+        restart_errors="yes"
+      else
+        log_to_email_time "Started Service $i/$N_Services:" "${!service_to_start}"
+      fi
+    done
+    if [ "${restart_errors}" == "yes" ]; then
+      log_to_email_time "Errors restarting services..."
+      exit 1
+    fi
+  else
+    log_to_email_time "Not Re-Starting any Services as no valid services found in config file"
+  fi
+}
+
+###################################################
+# CALL MAIN FUNCTION
+###################################################
+main "$@"
+
