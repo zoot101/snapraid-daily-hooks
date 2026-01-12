@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+
+###################################################
+# SnapRAID-DAILY NTFY Notification Hook
+###################################################
+# Github Page: https://github.com/zoot101/snapraid-daily-hooks
+###################################################
+
+script_version="0.2.0"
+
+# Max Attachment Size
+max_attachment_size=15000
+
+# Config File Parameters are:
+# ntfy_url="https://ntfy.sh/channel_name"
+# ntfy_icon_url="https://url/to/icon.png" (Optional)
+# ntfy_verbose="yes"
+# ntfy_priority=1 ( A number from 1 to 5 )
+#
+# If auth is configured - recommended for self-hosted setups:
+# ntfy_user=username
+# ntfy_password=password
+
+###################################################
+# Main Function
+###################################################
+main() {
+
+  # Arguments
+  local title="${1}"
+  local email_body="${2}"
+  local email_attachment="${3}"
+
+  # Check for an ntfy url, title and body at least
+  if [ -z "${ntfy_url}" ]; then
+    echo "ERROR: No ntfy_url defined - Exiting"
+    echo "Require export ntfy_url=\"https://ntfy.sh/channel_name\" in config file"
+    exit 1
+  elif [ -z "${1}" ]; then
+    echo "ERROR: No title specified - Exiting"
+    exit 1
+  elif [ -z "${2}" ]; then
+    echo "ERROR: No email body specified - Exiting"
+    exit 1
+  fi
+
+  # Exit if a Username is Given but no Password or Vice-Versa
+  if [[ -n "${ntfy_user}" && -z "${ntfy_password}" ]] || [[ -z "${ntfy_user}" && -n "${ntfy_password}" ]]; then
+    echo "ERROR: A user has been specified without a corresponding password or vice-versa"
+    echo "       Require both a user name and a password"
+    exit 1
+  fi
+
+  # Check for ntfy_verbose_parameter
+  if [ -z "${ntfy_verbose}" ]; then
+    ntfy_verbose="no"
+  elif [ "${ntfy_verbose}" != "yes" ] && [ "${ntfy_verbose}" != "no" ]; then
+    echo "ERROR: Invalid value for ntfy_verbose: ${ntfy_verbose}, it should be either \"yes\" or \"no\" - Exiting"
+    exit 1
+  fi
+
+  # Check for ntfy_priority
+  if [ -n "${ntfy_priority}" ]; then
+    if ! is_number "${ntfy_priority}"; then
+      echo "ERROR: ntfy_priority: ${ntfy_priority} is invalid - It should be a number from 1 to 5 - Exiting"
+      exit 1
+    elif [ "${ntfy_priority}" -lt 1 ] || [ "${ntfy_priority}" -gt 5 ]; then
+      echo "ERROR: ntfy_priority: ${ntfy_priority} is invalid - It should be a number from 1 to 5 - Exiting"
+      exit 1
+    fi
+  fi
+
+  # Check Dependencies are installed
+  check_dependencies
+
+  # Determine Email Body and Attachment Filenames
+  email_body_filename="$( echo "${email_body}" | awk -F "/" '{print $NF}')"
+  if [ -n "${email_attachment}" ]; then
+    email_attachment_filename="$( echo "${email_attachment}" | awk -F "/" '{print $NF}')"
+  fi
+
+  # Determine Tag to Use
+  if [ -z "${email_attachment}" ]; then
+    tag="white_check_mark"
+  else
+    tag="warning"
+  fi
+
+  # Print Greeting
+  print_greeting
+ 
+  # Send 1st Notification with Email Body (RunLog) 
+  echo " * Sending notification to ${ntfy_url}..."
+  curl_cmd -H "Title: ${title}" \
+           -T "${email_body}" \
+           -H "Filename: ${email_body_filename}" \
+           "${ntfy_url}"
+
+  # If an additional attachment is present - send that as a 2nd notification
+  if [ ! -z "${email_attachment}" ]; then
+    sleep 1
+
+    # Do a check on File size, as sometimes the SnapRAID Command log can be
+    # very large...
+    attachment_size=$(du "${email_attachment}" | awk '{print $1}')
+    if [ $attachment_size -ge $max_attachment_size ]; then
+      echo " * WARNING: Command Log > 15MB, this file size is too big to for ntfy.sh"
+      exit 1
+    fi
+
+    # Send Attachment as File via ntfy
+    echo " * Sending command log to ${ntfy_url}..."
+    curl_cmd -H "Title: Command Log" \
+             -T "${email_body}" \
+             -H "Filename: ${email_attachment_filename}" \
+             "${ntfy_url}"
+  fi
+  echo ""
+}
+
+###################################################
+# Other Functions
+###################################################
+# Function to check if a Variable is a number >= 0
+is_number() {
+  local number_regex='^[0-9]+$'
+  if ! [[ "$1" =~ $number_regex ]]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+# Check Dependencies
+check_dependencies() {
+  if ! which curl &>/dev/null; then
+    echo "ERROR: curl is not installed - Exiting..."
+    exit 1
+  elif ! which jq &>/dev/null; then
+    echo "ERROR: jq is not installed - Exiting..."
+    exit 1
+  fi
+}
+
+# Curl Command
+curl_cmd() {
+  # Base Curl Arguments
+  curl_cmd_args=( --silent --show-error --retry 3 )
+
+  # Add Authorisation, Tag, Icon URL, and Priority if Given...
+  if [ -n "${ntfy_user}" ]; then curl_cmd_args=("${curl_cmd_args[@]}" -u $ntfy_user:$ntfy_password); fi
+  if [ -n "${tag}" ]; then curl_cmd_args=("${curl_cmd_args[@]}" -H "X-Tags: ${tag}"); fi
+  if [ -n "${ntfy_icon_url}" ]; then curl_cmd_args=("${curl_cmd_args[@]}" -H "Icon: ${ntfy_icon_url}"); fi
+  if [ -n "${ntfy_priority}" ]; then curl_cmd_args=("${curl_cmd_args[@]}" -H "X-Priority: ${ntfy_priority}"); fi
+
+  # Call curl with all above arguments, silence output if verbose is not enabled...
+  if [ "${ntfy_verbose}" == "no" ]; then
+    curl "${curl_cmd_args[@]}" "$@" &> /dev/null
+  else
+    curl "${curl_cmd_args[@]}" "$@"
+  fi
+}
+
+# Print Greeting
+print_greeting() {
+  # Print Banner Like Main Script
+  echo ""
+  echo "##############################"
+  echo "# SnapRAID-DAILY: Ntfy Hook Version ${script_version}"
+  echo "##############################"
+  echo " * ntfy Server URL: ${ntfy_url}"
+}
+
+###################################################
+# Call Main Function
+###################################################
+main "$@"
+
