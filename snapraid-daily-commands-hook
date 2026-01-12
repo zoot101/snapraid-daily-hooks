@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+
+###################################################
+# SnapRAID-Daily Commands Hook
+###################################################
+# Github Page: https://github.com/zoot101/snapraid-daily-hooks
+##################################################
+# Simple bash script to run a number of commands on
+# start and end
+
+# Script Arguments
+# $1 - "start" or "end"
+
+script_version="0.1.1"
+
+# Script Variables
+max_supported_commands=5
+
+###################################################
+# MAIN FUNCTION
+###################################################
+main (){
+
+  # Execute Start Commands
+  if [ "${1}" == "start" ]; then
+    # Get Number of Start Commands
+    get_commands_number "start"
+
+    # Execute Commands
+    execute_commands "start"
+
+  # Execute Stop Commands
+  elif [ "${1}" == "end" ]; then
+    # Get Number of End Commands
+    get_commands_number "end"
+
+    # Execute End Commands
+    execute_commands "end"
+
+  # Exit for an empty argument
+  elif [ -z "${1}" ]; then
+    echo "ERROR: No Input Argument given"
+    echo "USAGE: $ snapraid-daily-command-hook start|end"
+    exit 1
+
+  # Exit for Invalid Arguments with an Error
+  else
+    echo "ERROR: Invalid Argument:" "${1}"
+    exit 1
+  fi
+
+  # Exit with Success
+  exit 0
+}
+
+###################################################
+# FUNCTIONS
+###################################################
+# Log to Email with and without time (main_logfile is passed in from main script)
+log_to_email() {
+  echo "$@" | tee -a $main_logfile
+}
+log_to_email_time() {
+  echo $(date +%H:%M:%S) ":" "$@" | tee -a $main_logfile
+}
+
+# Get number of commands - Exit if at least one command is not specified
+get_commands_number() {
+  if [ "${1}" == "start" ] && [ -z "${start_command1}" ]; then
+    log_to_email "ERROR: No Start Commands (start_command1-5) specified in config file - Exiting"
+    exit 1
+  elif [ "${1}" == "end" ] && [ -z "${end_command1}" ]; then
+    log_to_email "ERROR: No End Commands (end_command1-5) specified in config file - Exiting"
+    exit 1
+  fi
+
+  # Determine number of commands
+  for i in $(seq 1 1 $((max_supported_commands+1)))
+  do
+    local cmd="${1}_command"$i
+
+    # Print a Warning if start_commandN+1 is defined
+    if [ $i == $((max_supported_commands+1)) ] && [ ! -z "${!cmd}" ]; then
+      log_to_email_time "WARNING: Max Supported Start/End Commands = $max_supported_commands - Ignoring above numbered commands"
+      N_Commands=$max_supported_commands
+      break
+    elif [ -z "${!cmd}" ]; then
+      N_Commands=$((i-1))
+      if [ "${1}" == "start" ]; then
+        log_to_email_time "$N_Commands Start Commands(s) defined in config"
+      else
+        log_to_email_time "$N_Commands End Commands(s) defined in config"
+      fi
+      break
+    fi
+  done
+}
+
+# Loop through Each of the Commands and Execute them one-by-one
+execute_commands() {
+  for i in $(seq 1 1 $N_Commands); do
+    cmd="${1}_command"$i
+    if [ ! -z "${!cmd}" ]; then
+      if [ "${1}" == "start" ]; then
+        log_to_email_time "Executing Start Command $i/$N_Commands : ${!cmd} ..."
+      elif [ "${1}" == "end" ]; then
+        log_to_email_time "Executing End Command $i/$N_Commands : ${!cmd} ..."
+      fi
+
+      # Call Command directly using Bash
+      bash -c "${!cmd}"
+
+      # Check Error Code - Exit for the Start Commands, Continue to the end for the end commands
+      if [ $? != 0 ]; then
+        if [ "${1}" == "start" ]; then
+          log_to_email_time "ERROR: Command $i/$N_Commands : ${!cmd} appears not to have succeeded - Exiting"
+          exit 1
+        else
+          log_to_email_time "WARNING: Command $i/$N_Commands : ${!cmd} appears not to have succeeded - Continuing"
+        fi
+      else
+        if [ "${1}" == "start" ]; then
+          log_to_email_time "Start Command $i/$N_Commands successful"
+        elif [ "${1}" == "end" ]; then
+          log_to_email_time "End Command $i/$N_Commands successful"
+        fi
+      fi
+    fi
+  done
+  log_to_email ""
+}
+
+###################################################
+# CALL MAIN FUNCTION
+###################################################
+main "$@"
+
