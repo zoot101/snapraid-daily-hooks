@@ -288,7 +288,7 @@ source /etc/snapraid-daily.conf
 
 # Call the Hook script to test a Successfull Run
 # (sample_email_body.txt is the output from the main script discussed above)
-snapraid-daily-apprise hook "Test Subject" "sample_email_body.txt"
+snapraid-daily-apprise-hook "Test Subject" "sample_email_body.txt"
 
 # Call the Hook script to test a Run ending with a Warning/Error
 snapraid-daily-apprise-hook "Test Subject" "sample_email_body" "test_command_log.txt"
@@ -319,10 +319,12 @@ to **notification_hook2** etc.
 notification_hook1="/usr/bin/snapraid-daily-healthchecks-hook"
 
 # Healthchecks.io URLs
-healthchecks_url="https://hc-ping.com/123...456...abc"
-healthchecks_sync_url="https://hc-ping.com/123abzz...123"
-healthchecks_scrub_url="https://hc-ping.com/78990...frtg"
+export healthchecks_url="https://hc-ping.com/123...456...abc"
+export healthchecks_sync_url="https://hc-ping.com/123abzz...123"
+export healthchecks_scrub_url="https://hc-ping.com/78990...frtg"
 ```
+
+**Note that the use of "export" is important!**
 
 The 3 URL settings are explained below.
 
@@ -379,10 +381,10 @@ the error.
 
 ```bash
 # Source main snapraid-daily.conf to load variables
-source snapraid-daily.conf
+source /etc/snapraid-daily.conf
 
 # Test a Success Run
-/usr/bin/snarpaid-daily-healthchecks-hook "SnapRAID-DAILY: All OK" "body1.txt"
+/usr/bin/snapraid-daily-healthchecks-hook "SnapRAID-DAILY: All OK" "body1.txt"
 
 # Test an Error/Warning Run
 /usr/bin/snapraid-daily-healthchecks-hook "SnapRAID-DAILY: Sync Warning(s)" "body1.txt" "body3.txt"

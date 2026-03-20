@@ -83,7 +83,7 @@ get_snapraid_daily_inputs() {
   if [ "${sync_ran}" == "yes" ] && [ "${scrub_ran}" == "yes" ]; then
     echo "Main Script Options: Sync & Scrub"
     if [ -z "${healthchecks_url}" ]; then
-      echo "ERROR: healthchcks_url not defined in snapraid-daily.conf - Exiting"
+      echo "ERROR: healthchecks_url not defined in snapraid-daily.conf - Exiting"
       exit 1
     else
       echo " * Using Overall URL: ${healthchecks_url}"
