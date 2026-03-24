@@ -1,3 +1,11 @@
+snapraid-daily-hooks (0.5.1-1) stable; urgency=medium
+
+  * Merge pull request #4 from La-Li-Lu-Le-Lo/procedure_fixes
+    - Improved documentation to make it easier to follow along
+    - Fixed some typos.
+
+ -- Mark <mark9000@fastmail.org>  Tue, 24 Mar 2026 13:43:57 +0100
+
 snapraid-daily-hooks (0.5.0-1) stable; urgency=medium
 
   * Added back a hook for ntfy!
