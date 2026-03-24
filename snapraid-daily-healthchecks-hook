@@ -6,7 +6,7 @@
 # Github Page: https://github.com/zoot101/snapraid-daily-hooks
 ###################################################
 
-script_version="0.1.2"
+script_version="0.1.3"
 
 # Script Arguments
 # $1 - Email Subject
