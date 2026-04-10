@@ -14,7 +14,7 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.2.4"
+script_version="0.2.5"
 
 # Script Variables
 max_supported_apprise_urls=20
@@ -248,8 +248,14 @@ generate_compact_runlog() {
     compact_runlog=$(mktemp -t snapraid-daily-notification.XXXXX.txt)
   fi
 
-  # Place the Hostname, OS Name and SnapRAID version into the Compact Runlog,
+  # Obtain the SnapRAID version, need to account that the output of the command is
+  # different for Versions of 13.0 and older and Versions of 14.0 and newer
   snapraid_version=$(snapraid -V | awk '{print $2}' | sed 's/v//')
+  if [ "${snapraid_version}" == "CLI" ]; then
+    snapraid_version=$(snapraid -V | awk '{print $3}' | sed 's/v//')
+  fi
+
+  # Place the Hostname, OS Name and SnapRAID-DAILY version into the Compact Runlog,
   snapraid_daily_version=$(grep -w "SnapRAID-DAILY Version:" "${runlog}" | awk '{print $NF}')
   system_hostname=$(hostname --fqdn) &> "/dev/null"
   os_name=$(grep -w "^PRETTY_NAME" "/etc/os-release" | sed 's/PRETTY_NAME="//;s/"$//') &> "/dev/null"  
