@@ -1,3 +1,11 @@
+snapraid-daily-hooks (0.5.2-1) stable; urgency=medium
+
+  * Small change to Apprise Hook to correctly determine the
+    installed version of SnapRAID for Versions 13.0 and older
+    and also Versions 14.0 and newer.
+
+ -- Mark <mark9000@fastmail.org>  Fri, 10 Apr 2026 09:40:14 +0100
+
 snapraid-daily-hooks (0.5.1-1) stable; urgency=medium
 
   * Merge pull request #4 from La-Li-Lu-Le-Lo/procedure_fixes
