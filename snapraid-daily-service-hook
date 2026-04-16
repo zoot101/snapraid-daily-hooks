@@ -10,7 +10,7 @@
 # Script Arguments
 # $1 - "start" or "end"
 
-script_version="0.1.5"
+script_version="0.2.0"
 
 # Script Variables
 max_supported_services=20
@@ -21,6 +21,7 @@ max_supported_services=20
 main (){
   # Stop Services
   if [ "${1}" == "start" ]; then
+
     # Check for root, falling back to using sudo
     check_for_root_or_sudo
 
@@ -96,18 +97,26 @@ check_services() {
   # Otherwise determine the number of services specified. If 1,2,3,4
   # are specified and 6,7,8 are specified. 6,7,8 are ignored as 5 is skipped
   else
-    for i in $(seq 1 1 $max_supported_services); do
-      # Use reference variables - Remove ".service" from end if present
+    N_service=0
+
+    for i in $(seq 1 1 $((max_supported_services+1))); do
       service_to_check="service"$i
       unit_file=$(echo "${!service_to_check}" | sed 's/.service$//')
 
-      # Check the service exists or not
-      if [ ! -f "/etc/systemd/system/${unit_file}.service" ] && \
-         [ ! -f "/lib/systemd/system/${unit_file}.service" ] && \
-         [ ! -f "/usr/lib/systemd/system/${unit_file}.service" ]
+      # Check if > Max Number Supported Service are defined
+      if [ $i -eq $((max_supported_services+1)) ]; then
+        N_Services=$max_supported_services
+        log_to_email_time "More than Max Supported  Service(s) [$max_supported_services] defined in config"
+        log_to_email_time "Ignoring Higher Numbered Services"
+
+      # Otherwise check if the Service is Defined & Doesn't Exit - then Exit
+      elif [ -n "${!service_to_check}" ] && [[ (! -f "/etc/systemd/system/${unit_file}.service" && ! -f "/lib/systemd/system/${unit_file}.service" && ! -f "/usr/lib/systemd/system/${unit_file}.service") ]]
       then
+        log_to_email_time "ERROR: service$i - ${!service_to_check} defined in config file doesn't exit - Exiting"
+        exit 1
+      elif [ -z "${!service_to_check}" ]; then
         N_Services=$((i-1))
-        log_to_email_time "$N_Services Service(s) defined in config"
+        log_to_email_time "$N_Services Valid Service(s) defined in config"
         break
       fi
     done
