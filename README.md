@@ -25,6 +25,9 @@ the start and end.
 - [SnapRAID-DAILY Service Hook](#snapraid-daily-service-hook)
   - [Testing the Service Hook](#testing-the-service-hook)
   - [Running as a Non-Root User](#running-as-a-non-root-user)
+- [SnapRAID-DAILY Docker Container Hook](#snapraid-daily-docker-container-hook)
+  - [Testing the Docker Container Hook](#testing-the-docker-container-hook)
+  - [Running the Hook as a Non-Root User](#running-the-hook-as-a-non-root-user)
 - [SnapRAID-DAILY Commands Hook](#snapraid-daily-commands-hook)
   - [Running Commands that Require Root as a Different User](#running-commands-that-require-root-as-a-different-user)
   - [Testing the Commands Hook](#testing-the-commands-hook)
@@ -47,6 +50,7 @@ of **SnapRAID-DAILY**, to stop a list of services while the main script is runni
 and restart them afterwards.
 
 * **snapraid-daily-service-hook**
+* **snapraid-daily-docker-container-hook**
 * **snapraid-daily-commands-hook**
   
 # Installation and Setup
@@ -557,7 +561,7 @@ the main config file, the script will continue to the end and attempt to restart
 handing back control to **SnapRAID-DAILY**, which in turn will continue to the end and notify
 the user accordingly.
 
-The thinking here is that it is more important to attempt to ***re-start*** all services defined ni
+The thinking here is that it is more important to attempt to ***re-start*** all services defined in
 the config file than attempt to stop all services listed.
 
 See the sample **SnapRAID-DAILY** config provided here for an example that uses this hook
@@ -625,6 +629,125 @@ snapraid-daily-service-hook start
 
 # To test re-starting the services
 snapraid-daily-service-hook end
+```
+
+# SnapRAID-DAILY-Docker-Container-Hook
+
+This script stops a list of containers using **docker pause** when the main script
+starts, and restarts them when the main script finishes using **docker unpause**.
+It is intended to be used with the start and end hook feature of **SnapRAID-DAILY**.
+
+To use it, specify the following in the main script configuration file (**snapraid-daily.conf**),
+if already using a start and end hook, change **start_hook1** to **start_hook2** and **end_hook1**
+to **end_hook2** to add it etc.
+
+```bash
+# Specify path to hook script for start_hook and end_hook
+# parameters - change if needed
+start_hook1="/usr/bin/snapraid-daily-docker-container-hook"
+end_hook1="/usr/bin/snapraid-daily-docker-container-hook"
+
+# Specify the serivces to be stopped and then later
+# re-started
+export container1=sonarr
+export container2=lidarr
+export container3=radarr
+...
+...
+export containerN=bazarr
+```
+
+(Where N is the number of containers one wants to stop and later start)
+
+The start and end hook parameter are set to point to the hook script directly. A list of
+containers is also required to pass into the script to stop and later start. **Note that**
+**the use of "export" is important!**
+
+Just like above, the containers must be specified as container1= , container2= .... containerN= .
+Starting at 1 and going up to N, where N is the number of containers to stop/start.
+ 
+Note that numbers should not be skipped. For example if container1, container2 and container3 are
+given and subsequently container5, container6 and container7 are specified in the config file,
+then the later 3 are ignored. **Up to 20 Services are supported**.
+
+When the script is called with the "start" argument, which is what **SnapRAID-DAILY** does at the
+start, if any errors are encountered while attempting to stop any one of the containers, the script will
+exit immediately and hand control back to **SnapRAID-DAILY** which will exit and sent the user
+an email or call the notification hook(s).
+
+On the other hand, if errors are encountered while attempting to restart any of the containers listed in
+the main config file, the script will continue to the end and attempt to restart/unpause all containers before
+handing back control to **SnapRAID-DAILY**, which in turn will continue to the end and notify
+the user accordingly.
+
+The thinking here is that it is more important to attempt to ***re-start*** all containers defined in
+the config file than attempt to stop all containers listed.
+
+See the sample **SnapRAID-DAILY** config provided here for an example that uses this hook
+script.
+
+* [https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf](https://github.com/zoot101/snapraid-daily/blob/main/docs/examples/snapraid-daily.conf)
+
+## Testing the Docker Container Hook
+
+Finally it is a good idea to test the script out on its own before using it with **SnapRAID-DAILY**
+directly. Do that like so (as root) by calling the hook script exactly how **SnapRAID-DAILY** will
+call it:
+
+```bash
+# Source the main config
+source /etc/snapraid-daily.conf
+
+# To test stopping the containers
+# Call the hook with a "start" argument
+snapraid-daily-docker-container-hook start
+
+# To test re-starting the containers
+# Call the hook with an "end" argument
+snapraid-daily-docker-container-hook end
+```
+
+## Running the Hook as a Non-Root User
+
+If one is running the main **SnapRAID-DAILY** script as root this section does not apply, as
+typically root is required to use the **docker** command to stop/start containers.
+
+However, if one does not run the main **SnapRAID-DAILY** script as root, the hook script is also
+written to handle this case through the use of **sudo**.
+
+To use it in this case, add your user to the sudo group like so. If the script is not ran
+as root, a check is done that the user is part of the sudoers group.
+
+```bash
+usermod -aG sudo username
+```
+
+For the main script to run as a non-root user and call the hook script for full automation,
+it is required to call the **docker** command without a password.
+
+To allow usage of the **docker** for your user without a password create a file
+in **/etc/sudoers.d** like so:
+
+```bash
+# As root do
+visudo /etc/sudoers.d/username
+
+# Paste in the following, save and close
+username ALL=(root) NOPASSWD:/usr/bin/docker
+```
+
+Lastly test out the script like before while logged in as the user that will run the
+main **SnapRAID-DAILY** script.
+
+```bash
+# Source the main config
+source /etc/snapraid-daily.conf
+
+# To test stopping the containers
+snapraid-daily-docker-container-hook start
+
+# To test re-starting the containers
+snapraid-daily-docker-container-hook end
 ```
 
 # SnapRAID-DAILY Commands Hook
