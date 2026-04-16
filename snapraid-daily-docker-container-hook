@@ -1,0 +1,208 @@
+#!/usr/bin/env bash
+
+###################################################
+# SnapRAID-Daily Docker Container Hook
+###################################################
+# Github Page: https://github.com/zoot101/snapraid-daily-hooks
+###################################################
+# Simple bash script to pause/unpause a number of containers
+
+# Script Arguments
+# $1 - "start" or "end"
+
+script_version="0.1.0"
+
+# Script Variables
+max_supported_containers=20
+
+###################################################
+# MAIN FUNCTION
+###################################################
+main (){
+
+  # Supported Arguments - { start | end }
+  case "${1}" in
+
+  # Pause Containers
+    start)
+      check_for_root_or_sudo
+      check_for_docker
+      check_containers
+      pause_containers
+      exit 0
+    ;;
+
+    # Re-unpause containers
+    end)
+      check_for_root_or_sudo
+      check_for_docker
+      check_containers
+      unpause_containers
+      exit 0
+    ;;
+
+    # Exit for Invalid Arguments with an Error
+    *)
+      echo "ERROR: Invalid Argument:" "${1}"
+      exit 1
+    ;;
+  esac
+}
+
+###################################################
+# OTHER FUNCTIONS
+###################################################
+# Log to Email with and without time (main_logfile is exported in main script)
+log_to_email() {
+  echo "$@" | tee -a $main_logfile
+}
+log_to_email_time() {
+  echo $(date +%H:%M:%S) ":" "$@" | tee -a $main_logfile
+}
+
+# Check docker is installed
+check_for_docker() {
+  if ! command -v docker &> "/dev/null"; then
+    echo "ERROR: docker is not installed or found in \$PATH - Exiting"
+    exit 1
+  fi
+}
+
+# Check how many containers are specified in /etc/snapraid-daily.conf
+check_containers() {
+  # Check that "container1" is specifed, if not print a help message & exit
+  if [ -z "${container1}" ]; then
+    echo "ERROR: No Containers specified - Require the following in /etc/snapraid-daily.conf"
+    echo "       export container1=\"sonarr\""
+    echo "       export container2=\"radarr\""
+    echo "       export container3=\"bazarr\""
+    echo "       ..."
+    echo "       export containerN=\"whatever\""
+    echo "       etc."
+    echo ""
+    echo " * Where N is the number of containers to Start/Pause"
+    echo ""
+    echo " * Start from container1, if numbers are skipped anything after"
+    echo "   the skipped number are ignored."
+    echo ""
+    echo " * For example if container1...container5 are defined, but then"
+    echo "   container7..container10 are defined they are ignored as container6"
+    echo "   was skipped"
+    echo ""
+    exit 1
+
+  # Otherwise determine the number of containers specified.
+  else
+    N_Containers=1
+    for i in $(seq 1 1 $((max_supported_containers+1))); do
+      container_to_check="container"$i
+
+      # Check if > Max Number Supported Containers are defined
+      if [ $i -eq $((max_supported_containers+1)) ]; then
+        N_Containers=$max_supported_containers
+        log_to_email_time "More than Max Supported  Container(s) [$max_supported_containers] defined in config"
+        log_to_email_time "Ignoring Higher Numbered Containers"
+        break
+
+      # Otherwise check if the Container is Defined & Doesn't Exit - then Exit
+      elif [ -n "${!container_to_check}" ] && [ -z $(docker_ps_cmd -a -q -f name=^/"${!container_to_check}"$) ]; then
+        log_to_email_time "ERROR: container$i - ${!container_to_check} defined in config file doesn't exit - Exiting"
+        exit 1
+      elif [ -z "${!container_to_check}" ]; then
+        N_Containers=$((i-1))
+        log_to_email_time "$N_Containers Valid Container(s) defined in config"
+        break
+      fi
+    done
+  fi
+} 
+
+# Check for Root falling back to sudo
+check_for_root_or_sudo() {
+  # If ran as root, use docker as normal
+  if [ $UID == 0 ]; then
+    docker_pause_cmd() {
+      docker pause "$@" &> "/dev/null"
+    }
+
+    docker_unpause_cmd() {
+      docker unpause "$@" &> "/dev/null"
+    }
+
+    docker_ps_cmd() {
+      docker ps "$@"
+    }
+
+  # Non Root User - Fall back to Sudo
+  elif [ $UID != 0 ]; then
+    username=$(whoami)
+    if ! which sudo &>"/dev/null"; then
+      log_to_email_time "ERROR: Script not ran as root and sudo not installed - exiting"
+      exit 1
+    elif ! $(groups "${username}" | grep -qEw "sudo|sudoers"); then
+      log_to_email_time "ERROR: Script not ran as root and user is not in sudo group - exiting"
+      exit 1
+
+    # Otherwise set the docker commands to sudo docker
+    else
+      docker_pause_cmd() {
+        sudo docker pause "$@" &> "/dev/null"
+      }
+
+      docker_unpause_cmd() {
+        sudo docker unpause "$@" &> "/dev/null"
+      }
+
+      docker_ps_cmd() {
+        sudo docker ps "$@"
+      }
+    fi
+  fi
+}
+
+# Pause Containers (If at least one valid container was found)
+pause_containers() {
+  if [ $N_Containers -gt 0 ]; then
+    for i in $(seq 1 1 $N_Containers); do
+      container_to_pause="container"$i
+      docker_pause_cmd "${!container_to_pause}"
+      if [ $? != 0 ]; then
+        log_to_email_time "ERROR Pausing container $i/$N_Containers:" "${!container_to_pause}"
+        exit 1
+      else
+        log_to_email_time "Paused Container $i/$N_Containers:" "${!container_to_pause}"
+      fi
+    done
+  else
+    log_to_email_time "Not Pausing any Containers as no valid containers found in config file"
+  fi
+}
+
+# Start Containers (If at least one valid container was found)
+unpause_containers() {
+  if [ $N_Containers -gt 0 ]; then
+    unpause_errors="no"
+    for i in $(seq 1 1 $N_Containers); do
+      container_to_unpause="container"$i
+      docker_unpause_cmd "${!container_to_unpause}"
+      if [ $? != 0 ]; then
+        log_to_email_time "ERROR unpausing container $i/$N_Containers" "${!container_to_unpause}"
+        unpause_errors="yes"
+      else
+        log_to_email_time "Unpaused Container $i/$N_Containers:" "${!container_to_unpause}"
+      fi
+    done
+    if [ "${unpause_errors}" == "yes" ]; then
+      log_to_email_time "Errors unpausing containers..."
+      exit 1
+    fi
+  else
+    log_to_email_time "Not Unpausing any Containers as no valid containers found in config file"
+  fi
+}
+
+###################################################
+# CALL MAIN FUNCTION
+###################################################
+main "$@"
+
