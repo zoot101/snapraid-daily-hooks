@@ -1,3 +1,15 @@
+snapraid-daily-hooks (0.6.0-1) stable; urgency=medium
+
+  * Added docker container hook - Closes [#5]
+    - Added corresponding manual entry
+    - Updated main snapraid-daily-hooks(1) manual
+    - Updated README
+
+  * Made change to service hook to make check for services
+    incorrectly defined in the config file more robust.
+
+ -- Mark <mark9000@fastmail.org>  Thu, 16 Apr 2026 12:35:14 +0100
+
 snapraid-daily-hooks (0.5.2-1) stable; urgency=medium
 
   * Small change to Apprise Hook to correctly determine the
