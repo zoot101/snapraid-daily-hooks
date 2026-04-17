@@ -445,24 +445,24 @@ The following config is required in **/etc/snapraid-daily.conf**.
 
 ```
 # Ntfy Config
-ntfy_url="https://ntfy.sh/channel_name"
-ntfy_icon_url="https://url/to/icon.png" (Optional)
-ntfy_verbose="yes" (Optional)
-ntfy_priority=1 ( Optional - A number from 1 to 5 )
+export ntfy_url="https://ntfy.sh/channel_name"
+export ntfy_icon_url="https://url/to/icon.png" (Optional)
+export ntfy_verbose="yes" # (Optional)
+export ntfy_priority=1 # (Optional - A number from 1 to 5)
 
 # If auth is configured - recommended for self-hosted setups:
-ntfy_user=username
-ntfy_password=password
+export ntfy_user=username
+export ntfy_password=password
 ```
 
 The above configuration file parameters are covered below.
 
 **ntfy_url** : Main ntfy server URL, examples:
 
-* ntfy\_url="https://ntfy.sh/topic-name"     
-* ntfy\_url="https://ntfy.example.org/topic-name"   
+* export ntfy\_url="https://ntfy.sh/topic-name"     
+* export ntfy\_url="https://ntfy.example.org/topic-name"   
 
-Required.
+Again note the use of **export**.
 
 **ntfy_icon_url** : If one would like an icon to included with the notifications,
 then one can specify a URL to an Icon File here. If for instance you already have
