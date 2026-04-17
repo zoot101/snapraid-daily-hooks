@@ -417,6 +417,13 @@ This hook script is for use with **ntfy**. The **SnapRAID-DAILY** **Apprise** ho
 also be used with **ntfy**, and that is what the author recommends. However, this hook script
 offers an alternative if one does not want to install **Apprise** and is using **ntfy**.
 
+An example of the notifications using this hook script is the below (top on the right below),
+by default the email log is attached as a file.
+
+<p>
+  <img src="/imgs/ntfy_hook_example.png" height="600">
+</p>
+
 To get started one will need an instance of **ntfy** to use. While the script can be used with
 the public ntfy server (ntfy.sh), its probably better to use the Apprise hook script instead for that.
 
