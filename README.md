@@ -510,7 +510,7 @@ directly. One will need a sample email output to test the script.
 Either let the main script complete and copy & paste the email into a file, or copy the sample
 output from the Github page here:
 
-* [https://github.com/zoot101/snapraid-daily-hooks](https://github.com/zoot101/snapraid-daily-hooks)
+* [https://github.com/zoot101/snapraid-daily#sample-output](https://github.com/zoot101/snapraid-daily#sample-output)
 
 Then, do the below: 
 
