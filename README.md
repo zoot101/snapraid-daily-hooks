@@ -468,7 +468,7 @@ Again note the use of **export**.
 then one can specify a URL to an Icon File here. If for instance you already have
 some sort of Webserver on your Self-Hosted setup, this can be added easily. Example:
 
-* ntfy\_icon\_url="https://example.org/path/to/icon.png"
+* export ntfy\_icon\_url="https://example.org/path/to/icon.png"
 
 This is optional and can be omitted or commented out if not using.
 
