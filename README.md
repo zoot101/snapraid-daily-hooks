@@ -127,7 +127,12 @@ sudo dnf install coreutils snapraid bash curl gawk apprise
 # SnapRAID-DAILY Apprise Hook
 
 This hook script takes a list of notification services defined in the **Apprise** "Url" notfication
-format and sends a notification to each one of them.
+format and sends a notification to each one of them. It can be configured to set up notifications like
+below - This uses **ntfy** as an example.
+
+<p>
+  <img src="/imgs/ntfy_sample.png" height="600">
+</p>
 
 Apprise is hugely versatile in that it can send notifications easily to **ntfy**, **Slack**,
 **Telegram**, **Discord**, or Standard Email. Many more services are also supported. It is
@@ -146,7 +151,7 @@ is quite good.
 The only other thing to mention here, since its not especially clear in the **Apprise** documentation
 is that to have **Apprise** to send emails from an email on standard providers to another email with a
 different "from" sender (which is what **mutt** does in the parent script), this is the syntax
-for the **Apprise** type URL Required.
+for the **Apprise** type URL Required using Gmail as an example.
 
 ```bash
 mailtos://server.example:password@gmail.com?to=email-to-send-notifications-to@example.org&from=server.example.org
@@ -243,7 +248,11 @@ As mentioned above, this hook script creates a more compact version of the email
 for any **Apprise** Urls that do not start with **mailto://** or **mailtos://** (anything not an email),
 since services like **Telegram** or **ntfy** are more suited to shorter messages than standard email.
 
-Here is what a sample notification sent to **Telegram** looks like with the more compact notification body.
+Here are what sample notifications sent to **ntfy** and **Telegram** look like with the more compact notification body.
+
+<p>
+  <img src="/imgs/ntfy_sample.png" height="600">
+</p>
 
 <p>
   <img src="/imgs/telegram_sample.png" height="600">
