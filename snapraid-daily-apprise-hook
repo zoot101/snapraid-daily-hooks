@@ -14,7 +14,7 @@
 # $3 - Email Attachment (If Present)
 
 # Version
-script_version="0.2.5"
+script_version="0.2.6"
 
 # Script Variables
 max_supported_apprise_urls=20
@@ -332,13 +332,20 @@ generate_compact_runlog() {
   N_updated=$(grep -w -m 1 "Updated:" "${runlog}" | awk '{print $NF}')
   N_moved=$(grep -w -m 1 "Moved:" "${runlog}" | awk '{print $NF}')
   N_copied=$(grep -w -m 1 "Copied:" "${runlog}" | awk '{print $NF}')
+  N_relocated=$(grep -w -m 1 "Relocated:" "${runlog}" | awk '{print $NF}')
   N_restored=$(grep -w -m 1 "Restored:" "${runlog}" | awk '{print $NF}')
 
   # Check for Thresholds Exceeded
   if grep_cmd "One or more Thresholds Exceeded"; then
     log "Difference Check: Threshold(s) Exceeded"
-    log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
-    log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
+    if [[ -z "${N_relocated}" ]]; then
+      log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+      log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
+    else
+      log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+      log " * Moved: $N_moved Copied: $N_copied"
+      log " * Relocated: $N_relocated Restored: $N_restored"
+    fi
     log "$(grep -w -m 1 "Deletion Threshold:" "${runlog}")"
     log "$(grep -w -m 1 "Moved Threshold:" "${runlog}")"
     log "$(grep -w -m 1 "Updated Threshold:" "${runlog}")"
@@ -349,14 +356,26 @@ generate_compact_runlog() {
   # Check for Overriden Thresholds 
   elif grep_cmd "Overriding Deletion/Moved/Updated Thresholds"; then
     log "Difference Check: Overriden"
-    log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
-    log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
+    if [[ -z "${N_relocated}" ]]; then
+      log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+      log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
+    else
+      log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+      log " * Moved: $N_moved Copied: $N_copied"
+      log " * Relocated: $N_relocated Restored: $N_restored"
+    fi
 
   # Check if Changes were Detected
   elif grep_cmd "Changes Detected";then
     log "Difference Check: Changes Found"
-    log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
-    log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
+    if [[ -z "${N_relocated}" ]]; then
+      log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+      log " * Moved: $N_moved Copied: $N_copied Restored: $N_restored"
+    else
+      log " * Added: $N_added Removed: $N_removed Updated: $N_updated"
+      log " * Moved: $N_moved Copied: $N_copied"
+      log " * Relocated: $N_relocated Restored: $N_restored"
+    fi
 
   # Check for the case where no changes are detected. If sync only was ran
   # check for the end hook and stop here only if a sync wasn't in progress
